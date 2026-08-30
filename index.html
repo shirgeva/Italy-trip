@@ -603,6 +603,91 @@ body, html, :root { background: #FFFFFF; }
 /* Slightly quieter accent for active controls. */
 .day-tab.is-active { background: #9A5B4A; border-color: #9A5B4A; }
 
+
+/* AREA OPTIONS · optional places per day */
+.area-options-section {
+  margin-top: 42px;
+  padding-top: 30px;
+  border-top: 1px solid var(--border);
+}
+.area-options-intro {
+  margin: -8px 0 14px;
+  color: var(--muted);
+  font-size: 16px;
+  line-height: 1.55;
+}
+.area-options-list {
+  overflow: hidden;
+  background: #fff;
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  box-shadow: 0 6px 20px rgba(32,31,29,.04);
+}
+.area-option {
+  border-top: 0;
+  border-bottom: 1px solid var(--border);
+}
+.area-option:last-child { border-bottom: 0; }
+.area-option summary {
+  min-height: 52px;
+  padding: 12px 16px;
+  color: var(--ink);
+}
+.area-option-summary {
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px 10px;
+}
+.area-option-summary strong {
+  min-width: 0;
+  font-size: 16px;
+  font-weight: 650;
+}
+.area-option-category {
+  display: inline-flex;
+  align-items: center;
+  min-height: 26px;
+  padding: 3px 8px;
+  border-radius: 999px;
+  background: var(--surface-2);
+  color: var(--muted);
+  font-size: 16px;
+  font-weight: 500;
+}
+.area-option-toggle {
+  flex: 0 0 auto;
+  color: var(--muted);
+  font-size: 20px;
+}
+.area-option-body {
+  padding: 0 16px 15px;
+}
+.area-option-description {
+  margin: 0 0 10px;
+  color: var(--ink);
+  font-size: 16px;
+  line-height: 1.55;
+  unicode-bidi: plaintext;
+  text-align: right;
+}
+.area-option-body .detail-row:first-of-type { border-top: 0; }
+.area-option-body .detail-links { padding-top: 11px; }
+.area-option-body .detail-links > a:not(.map-app-link) {
+  min-height: 40px;
+  padding: 8px 11px;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: #fff;
+  color: var(--ink);
+}
+@media (max-width: 720px) {
+  .area-options-section { margin-top: 32px; padding-top: 24px; }
+  .area-option summary { padding: 12px 13px; }
+  .area-option-body { padding: 0 13px 14px; }
+}
+
 </style>
 </head>
 <body>
@@ -885,6 +970,21 @@ const trip = {
       drivingTime: 'כ־4.5–5 שעות',
       walking: 'עד שעה הליכה קלה',
       highlights: ['Val di Funes / Santa Maddalena', 'Ortisei'],
+      areaOptions: [
+        {
+          id: 'loacker-bolzano-walther',
+          name: 'Loacker Café Bolzano Piazza Walther',
+          category: 'קפה וחנות',
+          description: 'בית קפה וחנות רשמית של המותג. לשמור רק אם המסלול הסופי עובר דרך Bolzano — לא לעשות סטייה מיוחדת בשבילו.',
+          details: {
+            openingHours: 'ב׳–ש׳ 07:30–19:00 · א׳ 09:00–19:00',
+            price: 'אין דמי כניסה · תשלום לפי הזמנה או קנייה',
+            address: 'Piazza Walther 11, 39100 Bolzano BZ, Italy',
+            notes: 'מתאים כאפשרות ביום המעבר מ־Lake Como לדולומיטים, רק אם הדרך הסופית עוברת באופן טבעי באזור.',
+            website: 'https://www.loacker.com/int/en/experience-loacker/loacker-cafe/loacker-cafes/loacker-cafe-bolzano-piazza-walther.html',
+          },
+        },
+      ],
       stops: [
         drive('drive-como-funes', 'Bellano → Val di Funes / Santa Maddalena', 'כ־4 שעות', '08:00–08:30 יציאה', { notes: 'כולל מרווח קטן לעצירה בדרך.' }),
         place({ id: 'val-di-funes', name: 'Val di Funes / Santa Maddalena', time: '12:30–15:00', duration: '2–2.5 שעות', coordinates: coords.santaMaddalena, details: { notes: 'תצפיות, הכנסייה והליכה קלה. אפשר מסלול מעגלי קל של כ־3.2 ק״מ וכשעה.' } }),
@@ -922,6 +1022,21 @@ const trip = {
       drivingTime: 'כ־2 שעות עם עצירות',
       walking: '1–1.5 שעות בפועל',
       highlights: ['Alpe di Siusi', 'Cortina d’Ampezzo'],
+      areaOptions: [
+        {
+          id: 'gostner-schwaige',
+          name: 'Gostner Schwaige',
+          category: 'מחלבת הרים / אוכל',
+          description: 'Malga אמיתית ב־Alpe di Siusi עם ייצור עצמי של יוגורט וגבינות מחלב אלפיני. טובה לעצירה אם היא משתלבת בהליכה שלנו.',
+          details: {
+            openingHours: '29.5–29.10.2026 · סביב 09:00–17:30 · מטבח חם 11:00–16:30',
+            price: 'אין דמי כניסה · משלמים על אוכל ומוצרים',
+            address: 'Saltria 13, 39040 Alpe di Siusi / Seiser Alm, Italy',
+            notes: 'לא מצאתי סדנת הכנת גבינה פעילה באוקטובר; זו בקתת הרים עם ייצור ומוצרים מקומיים.',
+            website: 'https://www.seiseralm.it/en/info-service/current-information/information-a-z/E1B51F35362CDDEA97FFD47F074A6BEC-p-cheese-dairy-gostner-mountain-hut.html',
+          },
+        },
+      ],
       stops: [
         place({ id: 'alpe-cable-up', type: 'cablecar', name: 'Ortisei → Alpe di Siusi', time: '08:30–09:00', coordinates: coords.alpeSiusi, details: { price: '€41 הלוך־חזור לאדם', openingHours: 'פועל עד 18:00 בתקופה הזו' } }),
         place({ id: 'alpe-siusi', name: 'Alpe di Siusi', time: '09:00–12:30', duration: '2–3 שעות באזור', coordinates: coords.alpeSiusi, details: { notes: 'טיול רגוע בין המרעה וההרים; כשעה–שעה וחצי הליכה בפועל.' } }),
@@ -943,6 +1058,21 @@ const trip = {
       drivingTime: 'כ־2–2.5 שעות מפוצלות',
       walking: 'כ־2–3.5 שעות לפי הכוח',
       highlights: ['Tre Cime di Lavaredo', 'Lago di Braies'],
+      areaOptions: [
+        {
+          id: 'loacker-olang',
+          name: 'Loacker Café Olang / Valdaora',
+          category: 'קפה וחנות',
+          description: 'סניף רשמי באזור Pusteria, יחסית קרוב לאזור Lago di Braies. הוא דורש סטייה ולכן נשמר רק כאפשרות אם היום זורם.',
+          details: {
+            openingHours: 'ב׳–ש׳ 07:00–12:00 ו־14:00–17:00 · א׳ סגור',
+            price: 'אין דמי כניסה · תשלום לפי הזמנה או קנייה',
+            address: 'Bahnhofstraße 11 A, 39030 Olang (Valdaora) BZ, Italy',
+            notes: 'לא לשנות את יום Tre Cime / Braies במיוחד בשביל הסניף.',
+            website: 'https://www.loacker.com/int/en/experience-loacker/loacker-cafe/loacker-cafes/loacker-cafe-Olang---Valdaora.html',
+          },
+        },
+      ],
       alerts: ['זה היום הכי תלוי במזג האוויר; אם התחזית לא טובה, עדיף להחליף אותו עם יום אחר בדולומיטים.'],
       stops: [
         drive('drive-cortina-tre-cime', 'Cortina → Rifugio Auronzo / Tre Cime', '30–40 דקות', '08:00 יציאה'),
@@ -999,6 +1129,33 @@ const trip = {
       drivingTime: 'כ־4–5 שעות בסה״כ, בהתאם לתנועה',
       walking: 'ביקור קצר במפל + טיול רגוע ב־Riva וב־Limone',
       highlights: ['Parco Grotta Cascata Varone', 'Riva del Garda', 'Limone sul Garda'],
+      areaOptions: [
+        {
+          id: 'limonaia-castel',
+          name: 'Limonaia del Castèl',
+          category: 'מוזיאון / לימונים',
+          description: 'בית לימון היסטורי עם גידול הדרים ותצפיות. משתלב בקלות בזמן השיטוט ב־Limone.',
+          details: {
+            openingHours: '10.10.2026 · 10:00–18:00',
+            price: '€2 לאדם',
+            address: 'Via Orti 9, 25010 Limone sul Garda BS, Italy',
+            website: 'https://www.visitlimonesulgarda.com/en/museums/the-limonaia-del-castel/',
+          },
+        },
+        {
+          id: 'omkafe-arco',
+          name: 'Omkafè',
+          category: 'קפה / מוזיאון',
+          description: 'מוזיאון קפה אינטראקטיבי, חנות וטעימה. הוא נמצא ב־Arco ולא ב־Riva עצמה, אבל קרוב לאזור.',
+          details: {
+            openingHours: 'ב׳–ש׳ 08:30–12:30 ו־14:00–18:00 · א׳ סגור',
+            price: 'כניסה למוזיאון חינם',
+            address: 'Via Aldo Moro 7, 38062 Arco TN, Italy',
+            notes: 'רק אם הזמן ביום Garda מאפשר; לא לשנות את סדר היום במיוחד בשבילו.',
+            website: 'https://www.omkafe.com/en/visita-omkafe',
+          },
+        },
+      ],
       alerts: ['ב־Varone Waterfall המזוודות נשארות ברכב רק בזמן הביקור הקצר. לאחר מכן ב־Riva מפקידים אותן בשמירת חפצים ומשאירים את הרכב בחניון לכמה שעות.'],
       stops: [
         drive('drive-pozza-varone', 'Pozza di Fassa → Parco Grotta Cascata Varone', 'כ־2 שעות · משוער', 'יציאה מוקדמת', { notes: 'המטרה היא להגיע לפתיחה סביב 09:00.' }),
@@ -1025,6 +1182,187 @@ const trip = {
       drivingTime: 'כ־1.5–2 שעות כולל הגעה וחניה',
       walking: 'Monza + הליכה במרכז Milan',
       highlights: ['ACI Racing Weekend 2', 'Milan'],
+      areaOptions: [
+        {
+          id: 'venchi-mengoni',
+          name: 'Venchi Milano Mengoni',
+          category: 'שוקולד / גלידה',
+          description: 'סניף מרכזי ממש ליד Duomo, ולכן נוח במיוחד אם אנחנו כבר מסתובבים במרכז העיר.',
+          details: {
+            openingHours: 'סביב 10:30–19:30 · לבדוק שוב סמוך לטיול',
+            price: 'כניסה חינם · תשלום לפי קנייה',
+            address: 'Via Giuseppe Mengoni 1, 20121 Milano MI, Italy',
+            website: 'https://eu.venchi.com/pages/loyalty-stores',
+          },
+        },
+        {
+          id: 'venchi-dante',
+          name: 'Venchi Milano Dante',
+          category: 'שוקולד / גלידה',
+          description: 'סניף נוסף במרכז Milan, על Via Dante. לשמור כאופציה אם הוא נופל לנו טוב יותר על הדרך.',
+          details: {
+            openingHours: 'שעות משתנות · לבדוק שוב סמוך לטיול',
+            price: 'כניסה חינם · תשלום לפי קנייה',
+            address: 'Via Dante 5/N, 20121 Milano MI, Italy',
+            website: 'https://eu.venchi.com/pages/loyalty-stores',
+          },
+        },
+        {
+          id: 'lindt-via-dante',
+          name: 'Lindt Chocolate Shop Milano Via Dante',
+          category: 'שוקולד / קניות',
+          description: 'הסניף הרשמי שמצאתי שמתאים למסלול במרכז Milan.',
+          details: {
+            openingHours: 'סביב 10:00–19:30 · לבדוק שוב סמוך לטיול',
+            price: 'כניסה חינם · תשלום לפי קנייה',
+            address: 'Via Dante 9, 20123 Milano MI, Italy',
+            website: 'https://www.lindt.it/stores/',
+          },
+        },
+        {
+          id: 'ferrari-store-milan',
+          name: 'Ferrari Flagship Store',
+          category: 'חנות / Ferrari',
+          description: 'חנות הדגל של Ferrari עם מרצ׳נדייז ותצוגות, כולל תצוגת רכב בסגנון Formula 1.',
+          details: {
+            openingHours: 'כל יום 10:00–20:00',
+            price: 'כניסה חינם · תשלום לפי קנייה',
+            address: 'Via Berchet 2, 20121 Milano MI, Italy',
+            website: 'https://store.ferrari.com/en-gb/store-detail?StoreID=000N04',
+          },
+        },
+        {
+          id: 'kiko-passarella',
+          name: 'Kiko Milano - Milano - Angolo Galleria Passerella',
+          category: 'ביוטי / קניות',
+          description: 'סניף עם שירות חריטה בלייזר. מתאים לרעיון של מוצר KIKO עם התאמה אישית, בכפוף למוצרים הזמינים בסניף.',
+          details: {
+            openingHours: 'א׳ 10:00–21:00 · ב׳–ש׳ 09:00–21:00',
+            price: 'חריטה אישית €2 לפי האתר הרשמי',
+            address: 'Corso Vittorio Emanuele II 10, 20122 Milano MI, Italy',
+            website: 'https://kiko-stores.kikocosmetics.com/en/italy/lombardia/milano/milano-corso-vittorio-emanuele-ii-10',
+          },
+        },
+        {
+          id: 'primark-via-torino',
+          name: 'Primark Milano – Via Torino',
+          category: 'קניות',
+          description: 'סניף מרכזי גדול, נוח יחסית לאזור Duomo.',
+          details: {
+            openingHours: '09:00–22:00',
+            price: 'כניסה חינם · תשלום לפי קנייה',
+            address: 'Via Torino 45, 20123 Milano MI, Italy',
+            website: 'https://www.primark.com/it-it/stores/milano/via-torino-45',
+          },
+        },
+        {
+          id: 'orsonero-coffee',
+          name: 'Orsonero Coffee',
+          category: 'קפה ספיישלטי',
+          description: 'אחד מבתי הקפה המזוהים ביותר עם קפה ספיישלטי ב־Milan.',
+          details: {
+            openingHours: 'א׳ 09:00–13:00 · ג׳–ו׳ 08:00–17:00 · ש׳ 09:00–17:00 · ב׳ סגור',
+            price: 'לפי הזמנה',
+            address: 'Via Giuseppe Broggi 15, 20129 Milano MI, Italy',
+            website: 'https://www.orsonerocoffee.it/',
+          },
+        },
+        {
+          id: 'cafezal-brera',
+          name: 'Cafezal Specialty Coffee - Brera',
+          category: 'קפה ספיישלטי',
+          description: 'רוסטרי ובית קפה ספיישלטי ב־Brera, ולכן משתלב טבעי במיוחד אם נטייל באזור.',
+          details: {
+            openingHours: 'א׳ סביב 09:00–18:00 · לבדוק שוב סמוך לטיול',
+            price: 'לפי הזמנה',
+            address: 'Via Solferino 27, 20121 Milano MI, Italy',
+            website: 'https://cafezal.it/pages/locations',
+          },
+        },
+        {
+          id: 'nowhere-coffee',
+          name: 'NOWHERE - Future Coffee Roasters',
+          category: 'קפה ספיישלטי',
+          description: 'רוסטרי ובית קפה ספיישלטי עם אוכל. בסופ״ש יש שעות שבהן הישיבה מיועדת ל־brunch.',
+          details: {
+            openingHours: 'ש׳–א׳ 09:00–16:00 · ב׳–ו׳ 08:30–16:00',
+            price: 'לפי הזמנה',
+            address: 'Via Vetere 14, 20123 Milano MI, Italy',
+            notes: 'בסופ״ש בערך 11:00–14:00, קפה או קינוח בלבד עשויים להיות זמינים רק ל־takeaway.',
+            website: 'https://nowherecoffeeroasters.com/pages/about-coffee-shop',
+          },
+        },
+        {
+          id: 'il-cafetero',
+          name: 'Il Cafetero Specialty Coffee Milan',
+          category: 'קפה ספיישלטי',
+          description: 'Micro-roastery וקפה ספיישלטי אמיתי. פחות מרכזי מהאופציות האחרות, לכן רק אם נהיה באזור.',
+          details: {
+            openingHours: 'א׳ 08:00–14:00 · שעות שאר השבוע משתנות',
+            price: 'לפי הזמנה',
+            address: 'Via Rembrandt 12, 20148 Milano MI, Italy',
+            website: 'https://www.ilcafetero.it/contatti',
+          },
+        },
+        {
+          id: 'starbucks-roastery',
+          name: 'Starbucks Reserve Roastery Milano',
+          category: 'קפה / אטרקציה',
+          description: 'הרוסטרי הגדול ב־Piazza Cordusio, במרחק הליכה קצר מ־Duomo.',
+          details: {
+            openingHours: 'כל יום 07:30–22:30',
+            price: 'כניסה חינם · תשלום לפי הזמנה או קנייה',
+            address: 'Piazza Cordusio 1, 20123 Milano MI, Italy',
+            website: 'https://www.roastery.starbucks.it/visit',
+          },
+        },
+        {
+          id: 'giusti-milan',
+          name: 'Acetaia Giusti - Boutique Milano Duomo',
+          category: 'בלסמי / טעימות',
+          description: 'תחליף נוח לחוויית הבלסמי אחרי שהורדנו את Modena: חנות של Giusti ליד Duomo עם טעימות וקנייה.',
+          details: {
+            openingHours: 'כל יום 10:30–14:00 ו־14:30–19:00',
+            price: 'טעימת מוצרי החנות בחינם · Masterclass בתשלום לפי זמינות',
+            address: 'Via Spadari 6, 20123 Milano MI, Italy',
+            notes: 'Masterclass נמשך בערך שעה ודורש הזמנה מראש; אין צורך בו אם רוצים רק לטעום ולקנות.',
+            website: 'https://giusti.com/pages/boutique-milano-duomo',
+          },
+        },
+        {
+          id: 'enrico-rizzi-factory',
+          name: 'Fabbrica del Cioccolato di Enrico Rizzi',
+          category: 'שוקולד / ביקור',
+          description: 'מפעל ובוטיק שוקולד. אפשר להיכנס לקנייה או לבדוק ביקור מודרך בתיאום מראש.',
+          details: {
+            openingHours: 'א׳ 14:00–19:00 · ג׳–ש׳ 11:00–19:00 · ב׳ סגור',
+            price: 'כניסה לבוטיק חינם · ביקורים וחוויות בתשלום ובהזמנה',
+            address: 'Via Gian Giacomo Mora 18, Milano MI, Italy',
+            website: 'https://enricorizzi.com/pages/fabbrica-cioccolato-milano',
+          },
+        },
+        {
+          id: 'gianduiotto',
+          name: 'Gianduiotto · Caffarel / Venchi',
+          category: 'מה לחפש בסופר',
+          description: 'שוקולד מפיימונטה עם אגוזי לוז. זה לא ״טובלרון איטלקי״; לחפש את השם Gianduiotto, במיוחד באריזות של Caffarel או Venchi.',
+          details: {
+            notes: 'Caffarel מייחסת לעצמה את המצאת ה־Gianduiotto ב־1865. אין נקודת עצירה ספציפית — פשוט לזכור לחפש בסופר או בחנות שוקולד.',
+            website: 'https://caffarel.com/gianduiotto/',
+          },
+        },
+        {
+          id: 'gelateria-umberto',
+          name: 'Gelateria Umberto 1934 Milano',
+          category: 'גלידה',
+          description: 'גלידריה היסטורית מ־1934. אופציה טובה אם נהיה באזור Piazza Cinque Giornate.',
+          details: {
+            openingHours: 'א׳ 12:00–22:00 · בשאר השבוע לרוב עד 22:00–23:00 · לבדוק שוב סמוך לטיול',
+            price: 'לפי הזמנה',
+            address: 'Piazza Cinque Giornate 4, 20129 Milano MI, Italy',
+          },
+        },
+      ],
       alerts: ['לוח המרוצים המפורט ליום ראשון עדיין לא פורסם; המסגרת הידועה כרגע היא עד 18:00.'],
       stops: [
         drive('drive-milan-monza', 'Sesto San Giovanni → Autodromo Nazionale Monza', '45–60 דקות ביום אירוע', 'השעה תיקבע לפי לו״ז המרוצים', { notes: 'כולל מרווח להגעה וחניה.' }),
@@ -1048,7 +1386,7 @@ const trip = {
       highlights: ['טיסה חזרה'],
       alerts: [],
       stops: [
-        place({ id: 'milan-departure', type: 'hotel', name: 'Sesto San Giovanni · יציאה מהלינה המשוערת', time: '≈08:30–09:00', status: 'optional', coordinates: coords.sesto, details: { notes: 'שעה משוערת בלבד; תתעדכן אחרי בחירת המלון ותיקון שעת החזרת הרכב.' } }),
+        place({ id: 'milan-departure', type: 'hotel', name: 'Sesto San Giovanni · יציאה מהלינה המשוערת', time: '≈08:30–09:00', status: 'optional', coordinates: coords.sesto, details: { notes: 'שעה משוערת בלבד; תתעדכן אחרי בחירת המלון.' } }),
         drive('drive-milan-mxp', 'Sesto San Giovanni → Milan Malpensa Airport', '≈50–60 דקות', '≈08:30–09:00', { notes: 'הערכה לפי בסיס לינה ב־Sesto; תתעדכן לאחר סגירת המלון.' }),
         place({ id: 'rental-return', type: 'car', name: 'SIXT · Milano Malpensa Airport · Terminal 1', time: 'לפני הטיסה', status: 'booked', coordinates: coords.malpensa, details: { notes: 'החזרת הרכב לפני הטיסה בהתאם לתכנון.' } }),
         place({ id: 'return-flight', type: 'flight', name: 'Milan Malpensa Airport → Tel Aviv Airport', time: '13:05–18:00', status: 'booked', coordinates: coords.malpensa, details: { notes: 'המראה מ־Terminal 1 ב־13:05 · נחיתה ב־Tel Aviv ב־18:00.' } }),
@@ -1361,6 +1699,56 @@ function renderTimeline(stops) {
   }).join('')
 }
 
+
+function areaOptionLinks(option) {
+  const details = option.details ?? {}
+  const links = []
+  if (details.website) {
+    links.push(`<a href="${esc(details.website)}" target="_blank" rel="noreferrer">אתר ↗</a>`)
+  }
+  if (details.address) {
+    const encodedAddress = encodeURIComponent(details.address)
+    const googleMapsUrl = `https://www.google.com/maps/search/?api=1&query=${encodedAddress}`
+    const wazeUrl = `https://www.waze.com/ul?q=${encodedAddress}&navigate=yes`
+    links.push(`<a class="map-app-link" href="${esc(googleMapsUrl)}" target="_blank" rel="noreferrer" aria-label="פתיחה ב-Google Maps" title="Google Maps"><img src="https://cdn.simpleicons.org/googlemaps/4285F4" alt="" /></a>`)
+    links.push(`<a class="map-app-link" href="${esc(wazeUrl)}" target="_blank" rel="noreferrer" aria-label="פתיחה ב-Waze" title="Waze"><img src="https://cdn.simpleicons.org/waze/33CCFF" alt="" /></a>`)
+  }
+  return links.length ? `<div class="detail-links">${links.join('')}</div>` : ''
+}
+
+function renderAreaOption(option) {
+  const details = option.details ?? {}
+  const rows = []
+  if (details.openingHours) rows.push(['שעות', esc(details.openingHours)])
+  if (details.price) rows.push(['מחיר', esc(details.price)])
+  if (details.address) rows.push(['כתובת', ltr(details.address)])
+  if (details.notes) rows.push(['הערה', esc(details.notes)])
+  return `<details class="area-option">
+    <summary>
+      <div class="area-option-summary"><strong>${ltr(option.name)}</strong><small class="area-option-category">${esc(option.category)}</small></div>
+      <span class="area-option-toggle" aria-hidden="true">＋</span>
+    </summary>
+    <div class="area-option-body">
+      ${option.description ? `<p class="area-option-description">${esc(option.description)}</p>` : ''}
+      ${rows.map(([label, value]) => `<div class="detail-row"><span>${label}</span><div>${value}</div></div>`).join('')}
+      ${areaOptionLinks(option)}
+    </div>
+  </details>`
+}
+
+function renderAreaOptions(day) {
+  const options = day.areaOptions ?? []
+  if (!options.length) return ''
+  return `<section class="area-options-section" aria-label="אפשרויות באזור">
+    <div class="section-heading compact">
+      <div><span class="eyebrow">אם נשאר זמן</span><h2>אפשרויות באזור</h2></div>
+      <span class="section-note">${options.length} מקומות ששמרנו</span>
+    </div>
+    <p class="area-options-intro">לא חלק מהמסלול המתוכנן — רק דברים שכדאי לזכור אם נשאר זמן ומתאים באותו רגע. השעות שלא פורסמו במיוחד ל־2026 ייבדקו שוב סמוך לטיול.</p>
+    <div class="area-options-list">${options.map(renderAreaOption).join('')}</div>
+  </section>`
+}
+
 function renderDayAlerts(day) {
   if (!day.alerts?.length) return ''
   return `<div class="day-alerts">${day.alerts.map((alert) => `<div class="day-alert"><span aria-hidden="true">!</span><p>${esc(alert)}</p></div>`).join('')}</div>`
@@ -1393,6 +1781,7 @@ function renderDayPage(trip, day) {
         <div class="map-card sticky-card"><div class="map-heading"><span>המפה של היום</span><small>${hasCoordinates ? 'מסלול משוער · לפי סדר היום' : 'תתמלא עם המסלול'}</small></div><div id="day-map" class="map-canvas" data-map-kind="day" data-day-id="${esc(day.id)}"></div></div>
       </aside>
     </div>
+    ${renderAreaOptions(day)}
   </section>`
 }
 
@@ -1477,6 +1866,18 @@ function buildSearchIndex(trip) {
         meta: `יום ${day.number} · ${formatDate(day.date)} · ${stopTypeLabel(stop.type)}`,
         href: `#/day/${day.id}`,
         text: [stop.name, stop.time, stop.duration, details.address, details.notes, details.reservation].filter(Boolean).join(' '),
+      })
+    })
+  })
+
+  trip.days.forEach((day) => {
+    ;(day.areaOptions || []).forEach((option) => {
+      const details = option.details || {}
+      items.push({
+        title: option.name,
+        meta: `יום ${day.number} · אפשרויות באזור · ${option.category}`,
+        href: `#/day/${day.id}`,
+        text: [option.name, option.category, option.description, details.address, details.notes].filter(Boolean).join(' '),
       })
     })
   })
