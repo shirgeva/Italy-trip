@@ -1,0 +1,62 @@
+name: Apply mobile UX fixes
+
+on:
+  push:
+    branches:
+      - main
+
+permissions:
+  contents: write
+
+jobs:
+  patch:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Apply patch
+        run: python scripts/apply_mobile_fix.py
+
+      - name: Verify
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          import re
+          s = Path('index.html').read_text(encoding='utf-8')
+          required = [
+              "name: 'Orrido di Bellano'",
+              "name: 'Villa Monastero'",
+              "function renderMobileUtilityBar(currentHash)",
+              "function initMobileUtilityMenu()",
+              "case 'tasks': return renderTasksPage(trip)",
+              "const areaOptionTopicOrder = {",
+          ]
+          forbidden = [
+              'class="area-options-intro"',
+              'details[open] summary span { transform: rotate(45deg); }',
+              'ותיקון שעת החזרת הרכב',
+              'PWHSNG', '927630', '9738285720SI', '1176714', 'Eyal Shalom', 'Shir Geva Shalom',
+          ]
+          for value in required:
+              assert value in s, value
+          for value in forbidden:
+              assert value not in s, value
+          m = re.search(r'<script type="module">\n?(.*?)\n?</script>', s, re.S)
+          assert m, 'module script missing'
+          Path('/tmp/site.mjs').write_text(m.group(1), encoding='utf-8')
+          print('source verification passed')
+          PY
+          node --check /tmp/site.mjs
+          git diff --check
+
+      - name: Commit tested update
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git rm scripts/apply_mobile_fix.py .github/workflows/apply-mobile-fix.yml
+          git add index.html
+          git commit -m "Fix mobile navigation and area options"
+          git push origin HEAD:main
