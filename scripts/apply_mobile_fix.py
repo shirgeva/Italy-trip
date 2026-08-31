@@ -1,20 +1,28 @@
 from pathlib import Path
+import re
 
 path = Path('index.html')
 s = path.read_text(encoding='utf-8')
 
-def once(old, new, label):
-    global s
-    count = s.count(old)
-    if count != 1:
-        raise SystemExit(f'{label}: expected 1 match, found {count}')
-    s = s.replace(old, new, 1)
 
-# 1. Lake Como optional places.
-once(
-    "      highlights: ['Bellano / Varenna'],\n      stops: [",
-    """      highlights: ['Bellano / Varenna'],
-      areaOptions: [
+def sub_once(pattern, repl, label, flags=0):
+    global s
+    s2, n = re.subn(pattern, repl, s, count=1, flags=flags)
+    if n != 1:
+        raise SystemExit(f'{label}: expected 1 match, found {n}')
+    s = s2
+
+
+def insert_area_option(highlight_literal, block, label):
+    global s
+    if block.split("name: '", 1)[1].split("'", 1)[0] in s:
+        return
+    needle = re.escape(f"      highlights: {highlight_literal},\n") + r"(\s*)stops: \["
+    replacement = f"      highlights: {highlight_literal},\n{block}\\1stops: ["
+    sub_once(needle, replacement, label)
+
+
+orrido = """      areaOptions: [
         {
           id: 'orrido-bellano',
           name: 'Orrido di Bellano',
@@ -29,13 +37,8 @@ once(
           },
         },
       ],
-      stops: [""",
-    'day 1 Orrido',
-)
-once(
-    "      highlights: ['Varenna + Bellagio', 'Menaggio · אופציונלי'],\n      stops: [",
-    """      highlights: ['Varenna + Bellagio', 'Menaggio · אופציונלי'],
-      areaOptions: [
+"""
+villa = """      areaOptions: [
         {
           id: 'villa-monastero',
           name: 'Villa Monastero',
@@ -50,28 +53,15 @@ once(
           },
         },
       ],
-      stops: [""",
-    'day 2 Villa Monastero',
-)
+"""
+insert_area_option("['Bellano / Varenna']", orrido, 'day 1 Orrido')
+insert_area_option("['Varenna + Bellagio', 'Menaggio · אופציונלי']", villa, 'day 2 Villa')
 
-# 2. Accordion title should never be rotated.
-once(
-    'details[open] summary span { transform: rotate(45deg); }',
-    'details[open] summary > span { transform: rotate(45deg); }',
-    'accordion selector',
-)
+s = s.replace('details[open] summary span { transform: rotate(45deg); }', 'details[open] summary > span { transform: rotate(45deg); }')
+s = re.sub(r'\n\s*<p class="area-options-intro">.*?</p>', '', s, count=1)
 
-# 3. Remove explanatory paragraph below area options title.
-once(
-    '    <p class="area-options-intro">לא חלק מהמסלול המתוכנן — רק דברים שכדאי לזכור אם נשאר זמן ומתאים באותו רגע. השעות שלא פורסמו במיוחד ל־2026 ייבדקו שוב סמוך לטיול.</p>\n',
-    '',
-    'area intro',
-)
-
-# 4. Group Milan options by topic without visual headings.
-once(
-    'function renderAreaOptions(day) {',
-    """const areaOptionTopicOrder = {
+if 'const areaOptionTopicOrder = {' not in s:
+    order = """const areaOptionTopicOrder = {
   'ferrari-store-milan': 10,
   'kiko-passarella': 11,
   'primark-via-torino': 12,
@@ -89,46 +79,27 @@ once(
   'giusti-milan': 40,
 }
 
-function renderAreaOptions(day) {""",
-    'topic order',
-)
-once(
-    "  const options = day.areaOptions ?? []\n  if (!options.length) return ''\n",
-    "  const options = day.areaOptions ?? []\n  if (!options.length) return ''\n  const orderedOptions = [...options].sort((a, b) => (areaOptionTopicOrder[a.id] ?? 999) - (areaOptionTopicOrder[b.id] ?? 999))\n",
-    'ordered options',
-)
-once(
-    "${options.map(renderAreaOption).join('')}",
-    "${orderedOptions.map(renderAreaOption).join('')}",
-    'render sorted options',
-)
+"""
+    s = s.replace('function renderAreaOptions(day) {', order + 'function renderAreaOptions(day) {', 1)
+if 'const orderedOptions = [...options].sort' not in s:
+    s = s.replace("  if (!options.length) return ''\n", "  if (!options.length) return ''\n  const orderedOptions = [...options].sort((a, b) => (areaOptionTopicOrder[a.id] ?? 999) - (areaOptionTopicOrder[b.id] ?? 999))\n", 1)
+s = s.replace("${options.map(renderAreaOption).join('')}", "${orderedOptions.map(renderAreaOption).join('')}", 1)
 
-# 5. Add tasks as utility route and desktop nav entry.
-once(
-    "    '#/packing': 'packing',\n",
-    "    '#/packing': 'packing',\n    '#/tasks': 'tasks',\n",
-    'tasks parse route',
-)
-once(
-    "  ['#/hub', 'מרכז הטיול', 'מידע', 'hub'],\n  ['#/packing', 'רשימת ציוד', 'ציוד', 'packing'],\n",
-    "  ['#/hub', 'מרכז הטיול', 'מרכז', 'hub'],\n  ['#/packing', 'רשימת ציוד', 'ציוד', 'packing'],\n  ['#/tasks', 'משימות', 'משימות', 'tasks'],\n",
-    'nav items tasks',
-)
-once(
-    "    packing: '<svg viewBox=\"0 0 24 24\" aria-hidden=\"true\"><path d=\"M8 7V5.8A2.8 2.8 0 0 1 10.8 3h2.4A2.8 2.8 0 0 1 16 5.8V7\"/><rect x=\"5\" y=\"7\" width=\"14\" height=\"14\" rx=\"2\"/><path d=\"M9 11v6M15 11v6\"/></svg>',\n    search:",
-    "    packing: '<svg viewBox=\"0 0 24 24\" aria-hidden=\"true\"><path d=\"M8 7V5.8A2.8 2.8 0 0 1 10.8 3h2.4A2.8 2.8 0 0 1 16 5.8V7\"/><rect x=\"5\" y=\"7\" width=\"14\" height=\"14\" rx=\"2\"/><path d=\"M9 11v6M15 11v6\"/></svg>',\n    tasks: '<svg viewBox=\"0 0 24 24\" aria-hidden=\"true\"><path d=\"M9 6h11M9 12h11M9 18h11\"/><path d=\"m3.5 6 1.4 1.4L7.5 4.8M3.5 12l1.4 1.4 2.6-2.6M3.5 18l1.4 1.4 2.6-2.6\"/></svg>',\n    menu: '<svg viewBox=\"0 0 24 24\" aria-hidden=\"true\"><path d=\"M4 6h16M4 12h16M4 18h16\"/></svg>',\n    search:",
-    'new nav icons',
-)
+if "'#/tasks': 'tasks'" not in s:
+    s = s.replace("    '#/packing': 'packing',\n", "    '#/packing': 'packing',\n    '#/tasks': 'tasks',\n", 1)
+if "['#/tasks', 'משימות'" not in s:
+    s = s.replace("  ['#/packing', 'רשימת ציוד', 'ציוד', 'packing'],\n", "  ['#/packing', 'רשימת ציוד', 'ציוד', 'packing'],\n  ['#/tasks', 'משימות', 'משימות', 'tasks'],\n", 1)
+s = s.replace("['#/hub', 'מרכז הטיול', 'מידע', 'hub']", "['#/hub', 'מרכז הטיול', 'מרכז', 'hub']")
 
-old_mobile = '''function renderMobileNav(currentHash) {
-  const currentTop = currentHash.startsWith('#/day/') ? '#/itinerary' : currentHash
-  return `<nav class="mobile-nav" aria-label="ניווט מובייל">
-    ${navItems.map(([href, , mobileLabel, icon]) => `<a class="mobile-nav-link ${active(currentTop, href)}" href="${href}"><span class="mobile-nav-icon" aria-hidden="true">${navIcon(icon)}</span><small>${mobileLabel}</small></a>`).join('')}
-    <button class="mobile-nav-link search-trigger" type="button" aria-label="חיפוש באתר"><span class="mobile-nav-icon" aria-hidden="true">${navIcon('search')}</span><small>חיפוש</small></button>
-  </nav>`
-}
-'''
-new_mobile = '''function renderMobileNav(currentHash) {
+if "tasks: '<svg" not in s:
+    m = re.search(r"(\s+packing: '<svg.*?</svg>',\n)(\s+search:)", s)
+    if not m:
+        raise SystemExit('icons: packing/search anchor not found')
+    insert = m.group(1) + "    tasks: '<svg viewBox=\"0 0 24 24\" aria-hidden=\"true\"><path d=\"M9 6h11M9 12h11M9 18h11\"/><path d=\"m3.5 6 1.4 1.4L7.5 4.8M3.5 12l1.4 1.4 2.6-2.6M3.5 18l1.4 1.4 2.6-2.6\"/></svg>',\n    menu: '<svg viewBox=\"0 0 24 24\" aria-hidden=\"true\"><path d=\"M4 6h16M4 12h16M4 18h16\"/></svg>',\n" + m.group(2)
+    s = s[:m.start()] + insert + s[m.end():]
+
+if 'function renderMobileUtilityBar(currentHash)' not in s:
+    replacement = '''function renderMobileNav(currentHash) {
   const currentTop = currentHash.startsWith('#/day/') ? '#/itinerary' : currentHash
   const mobilePrimaryItems = navItems.filter(([href]) => ['#/overview', '#/itinerary', '#/map', '#/hub'].includes(href))
   return `<nav class="mobile-nav" aria-label="ניווט מובייל">
@@ -147,13 +118,12 @@ function renderMobileUtilityBar(currentHash) {
     </div>
   </div>`
 }
-'''
-once(old_mobile, new_mobile, 'mobile nav')
 
-# Dedicated tasks view, backed by existing checklist data.
-once(
-    'function renderPackingPage(trip) {',
-    '''function renderTasksPage(trip) {
+'''
+    sub_once(r'function renderMobileNav\(currentHash\) \{.*?\n\}\n\n(?=function renderPageHeader)', replacement, 'mobile nav block', flags=re.S)
+
+if 'function renderTasksPage(trip)' not in s:
+    tasks = '''function renderTasksPage(trip) {
   const doneCount = trip.checklist.filter((item) => item.done).length
   return `<section class="page tasks-page">
     ${renderPageHeader('לפני הנסיעה', 'משימות', 'מה כבר סגור ומה עוד נשאר לעשות לפני הטיסה.')}
@@ -162,36 +132,26 @@ once(
   </section>`
 }
 
-function renderPackingPage(trip) {''',
-    'tasks page',
-)
-once(
-    'function renderShell({ trip, currentHash, content }) {\n  return `${renderSidebar(trip, currentHash)}<main class="main-content">${content}<footer class="site-footer"><span>${esc(trip.name)}</span><span>${esc(trip.subtitle)}</span></footer></main>${renderMobileNav(currentHash)}${renderSearchOverlay()}`\n}',
-    'function renderShell({ trip, currentHash, content }) {\n  return `${renderSidebar(trip, currentHash)}${renderMobileUtilityBar(currentHash)}<main class="main-content">${content}<footer class="site-footer"><span>${esc(trip.name)}</span><span>${esc(trip.subtitle)}</span></footer></main>${renderMobileNav(currentHash)}${renderSearchOverlay()}`\n}',
-    'render shell',
-)
-once(
-    "    case 'packing': return renderPackingPage(trip)\n",
-    "    case 'packing': return renderPackingPage(trip)\n    case 'tasks': return renderTasksPage(trip)\n",
-    'tasks page route',
-)
-once(
-    "route.page === 'packing' ? 'רשימת ציוד' : route.page === 'map'",
-    "route.page === 'packing' ? 'רשימת ציוד' : route.page === 'tasks' ? 'משימות' : route.page === 'map'",
-    'tasks title',
-)
+'''
+    s = s.replace('function renderPackingPage(trip) {', tasks + 'function renderPackingPage(trip) {', 1)
 
-utility_js = '''function initMobileUtilityMenu() {
+if '${renderMobileUtilityBar(currentHash)}' not in s:
+    s = s.replace('${renderSidebar(trip, currentHash)}<main', '${renderSidebar(trip, currentHash)}${renderMobileUtilityBar(currentHash)}<main', 1)
+if "case 'tasks': return renderTasksPage(trip)" not in s:
+    s = s.replace("    case 'packing': return renderPackingPage(trip)\n", "    case 'packing': return renderPackingPage(trip)\n    case 'tasks': return renderTasksPage(trip)\n", 1)
+if "route.page === 'tasks' ? 'משימות'" not in s:
+    s = s.replace("route.page === 'packing' ? 'רשימת ציוד' : route.page === 'map'", "route.page === 'packing' ? 'רשימת ציוד' : route.page === 'tasks' ? 'משימות' : route.page === 'map'", 1)
+
+if 'function initMobileUtilityMenu()' not in s:
+    utility = '''function initMobileUtilityMenu() {
   const trigger = document.querySelector('.mobile-menu-trigger')
   const menu = document.querySelector('#mobile-more-menu')
   if (!trigger || !menu) return
-
   const close = () => {
     menu.classList.remove('is-open')
     menu.setAttribute('aria-hidden', 'true')
     trigger.setAttribute('aria-expanded', 'false')
   }
-
   trigger.addEventListener('click', (event) => {
     event.stopPropagation()
     const willOpen = !menu.classList.contains('is-open')
@@ -206,101 +166,34 @@ utility_js = '''function initMobileUtilityMenu() {
 }
 
 '''
-once('let countdownTimer = null\n', utility_js + 'let countdownTimer = null\n', 'utility js')
-once(
-    '  initGlobalSearch(trip)\n  initFlightCountdown()\n',
-    '  initGlobalSearch(trip)\n  initMobileUtilityMenu()\n  initFlightCountdown()\n',
-    'utility init',
-)
+    s = s.replace('let countdownTimer = null\n', utility + 'let countdownTimer = null\n', 1)
+if '  initMobileUtilityMenu()\n' not in s:
+    s = s.replace('  initGlobalSearch(trip)\n', '  initGlobalSearch(trip)\n  initMobileUtilityMenu()\n', 1)
 
-# Stale text from previous version.
 s = s.replace('שעה משוערת בלבד; תתעדכן אחרי בחירת המלון ותיקון שעת החזרת הרכב.', 'שעה משוערת בלבד; תתעדכן אחרי בחירת המלון.')
 
-mobile_css = r'''
+if '/* Mobile navigation cleanup */' not in s:
+    css = r'''
 
 /* Mobile navigation cleanup */
 .mobile-utility-bar { display: none; }
-
 @media (max-width: 720px) {
   .mobile-nav { grid-template-columns: repeat(4, 1fr); }
   .mobile-nav-link small { white-space: nowrap; }
-  .mobile-utility-bar {
-    position: fixed;
-    z-index: 1300;
-    top: 10px;
-    right: 10px;
-    display: flex;
-    gap: 8px;
-    direction: rtl;
-  }
-  .mobile-utility-button {
-    width: 44px;
-    height: 44px;
-    display: grid;
-    place-items: center;
-    padding: 0;
-    border: 1px solid var(--border);
-    border-radius: 12px;
-    background: rgba(255,255,255,.97);
-    color: var(--ink);
-    box-shadow: 0 6px 18px rgba(32,31,29,.08);
-    backdrop-filter: blur(10px);
-    cursor: pointer;
-  }
-  .mobile-utility-button svg {
-    width: 21px;
-    height: 21px;
-    fill: none;
-    stroke: currentColor;
-    stroke-width: 1.8;
-    stroke-linecap: round;
-    stroke-linejoin: round;
-  }
-  .mobile-more-menu {
-    position: absolute;
-    top: 52px;
-    right: 0;
-    width: 210px;
-    display: none;
-    overflow: hidden;
-    padding: 6px;
-    border: 1px solid var(--border);
-    border-radius: 14px;
-    background: #fff;
-    box-shadow: 0 16px 40px rgba(32,31,29,.16);
-  }
+  .mobile-utility-bar { position: fixed; z-index: 1300; top: 10px; right: 10px; display: flex; gap: 8px; direction: rtl; }
+  .mobile-utility-button { width: 44px; height: 44px; display: grid; place-items: center; padding: 0; border: 1px solid var(--border); border-radius: 12px; background: rgba(255,255,255,.97); color: var(--ink); box-shadow: 0 6px 18px rgba(32,31,29,.08); backdrop-filter: blur(10px); cursor: pointer; }
+  .mobile-utility-button svg { width: 21px; height: 21px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+  .mobile-more-menu { position: absolute; top: 52px; right: 0; width: 210px; display: none; overflow: hidden; padding: 6px; border: 1px solid var(--border); border-radius: 14px; background: #fff; box-shadow: 0 16px 40px rgba(32,31,29,.16); }
   .mobile-more-menu.is-open { display: grid; }
-  .mobile-more-link {
-    min-height: 46px;
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    padding: 8px 10px;
-    border-radius: 10px;
-    color: var(--ink);
-  }
+  .mobile-more-link { min-height: 46px; display: flex; align-items: center; gap: 10px; padding: 8px 10px; border-radius: 10px; color: var(--ink); }
   .mobile-more-link.is-active { background: var(--surface-2); }
-  .mobile-more-link > span {
-    width: 24px;
-    height: 24px;
-    display: grid;
-    place-items: center;
-    color: var(--muted);
-  }
-  .mobile-more-link svg {
-    width: 19px;
-    height: 19px;
-    fill: none;
-    stroke: currentColor;
-    stroke-width: 1.8;
-    stroke-linecap: round;
-    stroke-linejoin: round;
-  }
+  .mobile-more-link > span { width: 24px; height: 24px; display: grid; place-items: center; color: var(--muted); }
+  .mobile-more-link svg { width: 19px; height: 19px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
   .mobile-more-link strong { font-size: 16px; font-weight: 600; }
   .page { padding-top: 76px; }
   .area-option-summary .ltr { transform: none !important; }
 }
 '''
-once('\n</style>', mobile_css + '\n</style>', 'mobile css')
+    s = s.replace('\n</style>', css + '\n</style>', 1)
 
 path.write_text(s, encoding='utf-8')
