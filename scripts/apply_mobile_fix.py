@@ -1,0 +1,306 @@
+from pathlib import Path
+
+path = Path('index.html')
+s = path.read_text(encoding='utf-8')
+
+def once(old, new, label):
+    global s
+    count = s.count(old)
+    if count != 1:
+        raise SystemExit(f'{label}: expected 1 match, found {count}')
+    s = s.replace(old, new, 1)
+
+# 1. Lake Como optional places.
+once(
+    "      highlights: ['Bellano / Varenna'],\n      stops: [",
+    """      highlights: ['Bellano / Varenna'],
+      areaOptions: [
+        {
+          id: 'orrido-bellano',
+          name: 'Orrido di Bellano',
+          category: 'טבע / מפל',
+          description: 'קניון טבעי בתוך Bellano עם מפלים, סלעים ושבילי עץ. ביקור קצר יחסית שמתאים אם נשאר זמן ליד מקום הלינה.',
+          details: {
+            openingHours: '2.10.2026 · 09:00–18:00 · כניסה אחרונה 20 דקות לפני הסגירה',
+            price: '€8 לאדם',
+            address: 'Orrido di Bellano, 23822 Bellano LC, Italy',
+            notes: 'המסלול פשוט יחסית, אבל כולל מדרגות ומעברים צרים.',
+            website: 'https://www.orridobellano.eu/it/orari-e-biglietti/',
+          },
+        },
+      ],
+      stops: [""",
+    'day 1 Orrido',
+)
+once(
+    "      highlights: ['Varenna + Bellagio', 'Menaggio · אופציונלי'],\n      stops: [",
+    """      highlights: ['Varenna + Bellagio', 'Menaggio · אופציונלי'],
+      areaOptions: [
+        {
+          id: 'villa-monastero',
+          name: 'Villa Monastero',
+          category: 'וילה / גנים',
+          description: 'וילה היסטורית ב־Varenna עם בית מוזיאון וגן בוטני ארוך על שפת Lake Como. לשמור כאופציה אם נשאר זמן בתוך Varenna.',
+          details: {
+            openingHours: '3.10.2026 · 10:00–18:00',
+            price: '€15 גן + בית מוזיאון · €13 גן בלבד',
+            address: 'Viale Giovanni Polvani 4, 23829 Varenna LC, Italy',
+            notes: 'הגן פתוח כל יום באוקטובר; בית המוזיאון סגור בימי שלישי בלבד.',
+            website: 'https://www.villamonastero.eu/en/opening-hours-ticket/',
+          },
+        },
+      ],
+      stops: [""",
+    'day 2 Villa Monastero',
+)
+
+# 2. Accordion title should never be rotated.
+once(
+    'details[open] summary span { transform: rotate(45deg); }',
+    'details[open] summary > span { transform: rotate(45deg); }',
+    'accordion selector',
+)
+
+# 3. Remove explanatory paragraph below area options title.
+once(
+    '    <p class="area-options-intro">לא חלק מהמסלול המתוכנן — רק דברים שכדאי לזכור אם נשאר זמן ומתאים באותו רגע. השעות שלא פורסמו במיוחד ל־2026 ייבדקו שוב סמוך לטיול.</p>\n',
+    '',
+    'area intro',
+)
+
+# 4. Group Milan options by topic without visual headings.
+once(
+    'function renderAreaOptions(day) {',
+    """const areaOptionTopicOrder = {
+  'ferrari-store-milan': 10,
+  'kiko-passarella': 11,
+  'primark-via-torino': 12,
+  'venchi-mengoni': 20,
+  'venchi-dante': 21,
+  'lindt-via-dante': 22,
+  'enrico-rizzi-factory': 23,
+  'gianduiotto': 24,
+  'gelateria-umberto': 25,
+  'orsonero-coffee': 30,
+  'cafezal-brera': 31,
+  'nowhere-coffee': 32,
+  'il-cafetero': 33,
+  'starbucks-roastery': 34,
+  'giusti-milan': 40,
+}
+
+function renderAreaOptions(day) {""",
+    'topic order',
+)
+once(
+    "  const options = day.areaOptions ?? []\n  if (!options.length) return ''\n",
+    "  const options = day.areaOptions ?? []\n  if (!options.length) return ''\n  const orderedOptions = [...options].sort((a, b) => (areaOptionTopicOrder[a.id] ?? 999) - (areaOptionTopicOrder[b.id] ?? 999))\n",
+    'ordered options',
+)
+once(
+    "${options.map(renderAreaOption).join('')}",
+    "${orderedOptions.map(renderAreaOption).join('')}",
+    'render sorted options',
+)
+
+# 5. Add tasks as utility route and desktop nav entry.
+once(
+    "    '#/packing': 'packing',\n",
+    "    '#/packing': 'packing',\n    '#/tasks': 'tasks',\n",
+    'tasks parse route',
+)
+once(
+    "  ['#/hub', 'מרכז הטיול', 'מידע', 'hub'],\n  ['#/packing', 'רשימת ציוד', 'ציוד', 'packing'],\n",
+    "  ['#/hub', 'מרכז הטיול', 'מרכז', 'hub'],\n  ['#/packing', 'רשימת ציוד', 'ציוד', 'packing'],\n  ['#/tasks', 'משימות', 'משימות', 'tasks'],\n",
+    'nav items tasks',
+)
+once(
+    "    packing: '<svg viewBox=\"0 0 24 24\" aria-hidden=\"true\"><path d=\"M8 7V5.8A2.8 2.8 0 0 1 10.8 3h2.4A2.8 2.8 0 0 1 16 5.8V7\"/><rect x=\"5\" y=\"7\" width=\"14\" height=\"14\" rx=\"2\"/><path d=\"M9 11v6M15 11v6\"/></svg>',\n    search:",
+    "    packing: '<svg viewBox=\"0 0 24 24\" aria-hidden=\"true\"><path d=\"M8 7V5.8A2.8 2.8 0 0 1 10.8 3h2.4A2.8 2.8 0 0 1 16 5.8V7\"/><rect x=\"5\" y=\"7\" width=\"14\" height=\"14\" rx=\"2\"/><path d=\"M9 11v6M15 11v6\"/></svg>',\n    tasks: '<svg viewBox=\"0 0 24 24\" aria-hidden=\"true\"><path d=\"M9 6h11M9 12h11M9 18h11\"/><path d=\"m3.5 6 1.4 1.4L7.5 4.8M3.5 12l1.4 1.4 2.6-2.6M3.5 18l1.4 1.4 2.6-2.6\"/></svg>',\n    menu: '<svg viewBox=\"0 0 24 24\" aria-hidden=\"true\"><path d=\"M4 6h16M4 12h16M4 18h16\"/></svg>',\n    search:",
+    'new nav icons',
+)
+
+old_mobile = '''function renderMobileNav(currentHash) {
+  const currentTop = currentHash.startsWith('#/day/') ? '#/itinerary' : currentHash
+  return `<nav class="mobile-nav" aria-label="ניווט מובייל">
+    ${navItems.map(([href, , mobileLabel, icon]) => `<a class="mobile-nav-link ${active(currentTop, href)}" href="${href}"><span class="mobile-nav-icon" aria-hidden="true">${navIcon(icon)}</span><small>${mobileLabel}</small></a>`).join('')}
+    <button class="mobile-nav-link search-trigger" type="button" aria-label="חיפוש באתר"><span class="mobile-nav-icon" aria-hidden="true">${navIcon('search')}</span><small>חיפוש</small></button>
+  </nav>`
+}
+'''
+new_mobile = '''function renderMobileNav(currentHash) {
+  const currentTop = currentHash.startsWith('#/day/') ? '#/itinerary' : currentHash
+  const mobilePrimaryItems = navItems.filter(([href]) => ['#/overview', '#/itinerary', '#/map', '#/hub'].includes(href))
+  return `<nav class="mobile-nav" aria-label="ניווט מובייל">
+    ${mobilePrimaryItems.map(([href, , mobileLabel, icon]) => `<a class="mobile-nav-link ${active(currentTop, href)}" href="${href}"><span class="mobile-nav-icon" aria-hidden="true">${navIcon(icon)}</span><small>${mobileLabel}</small></a>`).join('')}
+  </nav>`
+}
+
+function renderMobileUtilityBar(currentHash) {
+  const currentTop = currentHash.startsWith('#/day/') ? '#/itinerary' : currentHash
+  return `<div class="mobile-utility-bar" aria-label="כלים נוספים">
+    <button class="mobile-utility-button mobile-menu-trigger" type="button" aria-label="פתיחת תפריט נוסף" aria-expanded="false">${navIcon('menu')}</button>
+    <button class="mobile-utility-button search-trigger" type="button" aria-label="חיפוש באתר">${navIcon('search')}</button>
+    <div class="mobile-more-menu" id="mobile-more-menu" aria-hidden="true">
+      <a class="mobile-more-link ${active(currentTop, '#/packing')}" href="#/packing"><span>${navIcon('packing')}</span><strong>רשימת ציוד</strong></a>
+      <a class="mobile-more-link ${active(currentTop, '#/tasks')}" href="#/tasks"><span>${navIcon('tasks')}</span><strong>משימות</strong></a>
+    </div>
+  </div>`
+}
+'''
+once(old_mobile, new_mobile, 'mobile nav')
+
+# Dedicated tasks view, backed by existing checklist data.
+once(
+    'function renderPackingPage(trip) {',
+    '''function renderTasksPage(trip) {
+  const doneCount = trip.checklist.filter((item) => item.done).length
+  return `<section class="page tasks-page">
+    ${renderPageHeader('לפני הנסיעה', 'משימות', 'מה כבר סגור ומה עוד נשאר לעשות לפני הטיסה.')}
+    <div class="section-heading compact"><div><span class="eyebrow">התקדמות</span><h2>${doneCount}/${trip.checklist.length} הושלמו</h2></div></div>
+    <div class="checklist-card tasks-checklist">${trip.checklist.map((item) => `<label class="checklist-item ${item.done ? 'is-done' : ''}"><input type="checkbox" ${item.done ? 'checked' : ''}><span class="custom-check"></span><span>${esc(item.label)}</span></label>`).join('')}</div>
+  </section>`
+}
+
+function renderPackingPage(trip) {''',
+    'tasks page',
+)
+once(
+    'function renderShell({ trip, currentHash, content }) {\n  return `${renderSidebar(trip, currentHash)}<main class="main-content">${content}<footer class="site-footer"><span>${esc(trip.name)}</span><span>${esc(trip.subtitle)}</span></footer></main>${renderMobileNav(currentHash)}${renderSearchOverlay()}`\n}',
+    'function renderShell({ trip, currentHash, content }) {\n  return `${renderSidebar(trip, currentHash)}${renderMobileUtilityBar(currentHash)}<main class="main-content">${content}<footer class="site-footer"><span>${esc(trip.name)}</span><span>${esc(trip.subtitle)}</span></footer></main>${renderMobileNav(currentHash)}${renderSearchOverlay()}`\n}',
+    'render shell',
+)
+once(
+    "    case 'packing': return renderPackingPage(trip)\n",
+    "    case 'packing': return renderPackingPage(trip)\n    case 'tasks': return renderTasksPage(trip)\n",
+    'tasks page route',
+)
+once(
+    "route.page === 'packing' ? 'רשימת ציוד' : route.page === 'map'",
+    "route.page === 'packing' ? 'רשימת ציוד' : route.page === 'tasks' ? 'משימות' : route.page === 'map'",
+    'tasks title',
+)
+
+utility_js = '''function initMobileUtilityMenu() {
+  const trigger = document.querySelector('.mobile-menu-trigger')
+  const menu = document.querySelector('#mobile-more-menu')
+  if (!trigger || !menu) return
+
+  const close = () => {
+    menu.classList.remove('is-open')
+    menu.setAttribute('aria-hidden', 'true')
+    trigger.setAttribute('aria-expanded', 'false')
+  }
+
+  trigger.addEventListener('click', (event) => {
+    event.stopPropagation()
+    const willOpen = !menu.classList.contains('is-open')
+    if (!willOpen) return close()
+    menu.classList.add('is-open')
+    menu.setAttribute('aria-hidden', 'false')
+    trigger.setAttribute('aria-expanded', 'true')
+    window.setTimeout(() => document.addEventListener('click', close, { once: true }), 0)
+  })
+  menu.addEventListener('click', (event) => event.stopPropagation())
+  menu.querySelectorAll('a').forEach((link) => link.addEventListener('click', close))
+}
+
+'''
+once('let countdownTimer = null\n', utility_js + 'let countdownTimer = null\n', 'utility js')
+once(
+    '  initGlobalSearch(trip)\n  initFlightCountdown()\n',
+    '  initGlobalSearch(trip)\n  initMobileUtilityMenu()\n  initFlightCountdown()\n',
+    'utility init',
+)
+
+# Stale text from previous version.
+s = s.replace('שעה משוערת בלבד; תתעדכן אחרי בחירת המלון ותיקון שעת החזרת הרכב.', 'שעה משוערת בלבד; תתעדכן אחרי בחירת המלון.')
+
+mobile_css = r'''
+
+/* Mobile navigation cleanup */
+.mobile-utility-bar { display: none; }
+
+@media (max-width: 720px) {
+  .mobile-nav { grid-template-columns: repeat(4, 1fr); }
+  .mobile-nav-link small { white-space: nowrap; }
+  .mobile-utility-bar {
+    position: fixed;
+    z-index: 1300;
+    top: 10px;
+    right: 10px;
+    display: flex;
+    gap: 8px;
+    direction: rtl;
+  }
+  .mobile-utility-button {
+    width: 44px;
+    height: 44px;
+    display: grid;
+    place-items: center;
+    padding: 0;
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    background: rgba(255,255,255,.97);
+    color: var(--ink);
+    box-shadow: 0 6px 18px rgba(32,31,29,.08);
+    backdrop-filter: blur(10px);
+    cursor: pointer;
+  }
+  .mobile-utility-button svg {
+    width: 21px;
+    height: 21px;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 1.8;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+  }
+  .mobile-more-menu {
+    position: absolute;
+    top: 52px;
+    right: 0;
+    width: 210px;
+    display: none;
+    overflow: hidden;
+    padding: 6px;
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    background: #fff;
+    box-shadow: 0 16px 40px rgba(32,31,29,.16);
+  }
+  .mobile-more-menu.is-open { display: grid; }
+  .mobile-more-link {
+    min-height: 46px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 8px 10px;
+    border-radius: 10px;
+    color: var(--ink);
+  }
+  .mobile-more-link.is-active { background: var(--surface-2); }
+  .mobile-more-link > span {
+    width: 24px;
+    height: 24px;
+    display: grid;
+    place-items: center;
+    color: var(--muted);
+  }
+  .mobile-more-link svg {
+    width: 19px;
+    height: 19px;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 1.8;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+  }
+  .mobile-more-link strong { font-size: 16px; font-weight: 600; }
+  .page { padding-top: 76px; }
+  .area-option-summary .ltr { transform: none !important; }
+}
+'''
+once('\n</style>', mobile_css + '\n</style>', 'mobile css')
+
+path.write_text(s, encoding='utf-8')
