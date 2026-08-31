@@ -1567,7 +1567,7 @@ function renderSidebar(trip, currentHash) {
       <span><strong>${esc(trip.name)}</strong><small>${esc(trip.subtitle)}</small></span>
     </a>
     <nav class="primary-nav">
-      ${navItems.map(([href, label, icon]) => `<a class="nav-link ${active(currentTop, href)}" href="${href}"><span class="nav-icon" aria-hidden="true">${navIcon(icon)}</span><span>${label}</span></a>`).join('')}
+      ${navItems.map(([href, label, , icon]) => `<a class="nav-link ${active(currentTop, href)}" href="${href}"><span class="nav-icon" aria-hidden="true">${navIcon(icon)}</span><span>${label}</span></a>`).join('')}
       <button class="nav-link search-trigger" type="button" aria-label="חיפוש באתר"><span class="nav-icon" aria-hidden="true">${navIcon('search')}</span><span>חיפוש</span></button>
     </nav>
   </aside>`
