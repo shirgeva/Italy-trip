@@ -1,0 +1,44 @@
+name: One-time day tab lodging groups
+
+on:
+  push:
+    paths:
+      - '.github/workflows/day-tab-lodging-groups.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+      - name: Update day tab colors
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          p = Path('index.html')
+          s = p.read_text()
+          old = """.day-tab { min-height: 42px; display: inline-flex; align-items: center; justify-content: center; padding: 8px 14px; border: 1px solid var(--border); border-radius: 999px; background: var(--surface); color: var(--muted); font-size: 16px; font-weight: 650; transition: .2s ease; }
+.day-tab:hover { border-color: #CFC7BE; color: var(--ink); }
+.day-tab.is-active { background: var(--green); border-color: var(--green); color: #fff; }"""
+          new = """.day-tab { min-height: 42px; display: inline-flex; align-items: center; justify-content: center; padding: 8px 14px; border: 1px solid var(--border); border-radius: 999px; background: var(--surface); color: var(--muted); font-size: 16px; font-weight: 650; transition: .2s ease; }
+.day-tab:nth-child(4n + 1), .day-tab:nth-child(4n + 2) { background: #F6F0EA; border-color: #E8DDD3; color: #655E58; }
+.day-tab:nth-child(4n + 3), .day-tab:nth-child(4n + 4) { background: #EFE5E2; border-color: #E0D2CD; color: #655E58; }
+.day-tab:hover { border-color: #CFC7BE; color: var(--ink); filter: brightness(.985); }
+.day-tab.is-active { background: var(--green); border-color: var(--green); color: #fff; filter: none; }"""
+          if old not in s:
+              raise SystemExit('day-tab CSS block not found')
+          s = s.replace(old, new, 1)
+          p.write_text(s)
+          PY
+      - name: Commit update and remove one-time workflow
+        run: |
+          git config user.name "shirgeva"
+          git config user.email "shirgeva11@gmail.com"
+          git rm .github/workflows/day-tab-lodging-groups.yml
+          git add index.html
+          git commit -m "Add subtle lodging grouping to day tabs"
+          git push
