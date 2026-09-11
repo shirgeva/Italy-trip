@@ -1,113 +1,43 @@
-name: Apply Val di Fassa itinerary update
+# Simple workflow for deploying static content to GitHub Pages
+name: Deploy static content to Pages
 
 on:
+  # Runs on pushes targeting the default branch
   push:
     branches: ["main"]
 
+  # Allows you to run this workflow manually from the Actions tab
+  workflow_dispatch:
+
+# Sets permissions of the GITHUB_TOKEN to allow deployment to GitHub Pages
 permissions:
-  contents: write
+  contents: read
+  pages: write
+  id-token: write
+
+# Allow only one concurrent deployment, skipping runs queued between the run in-progress and latest queued.
+# However, do NOT cancel in-progress runs as we want to allow these production deployments to complete.
+concurrency:
+  group: "pages"
+  cancel-in-progress: false
 
 jobs:
-  update-trip:
+  # Single deploy job since we're just deploying
+  deploy:
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+      - name: Setup Pages
+        uses: actions/configure-pages@v5
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v3
         with:
-          fetch-depth: 3
-
-      - name: Update itinerary source
-        shell: bash
-        run: |
-          python <<'PY'
-          from pathlib import Path
-          import re
-
-          path = Path('index.html')
-          s = path.read_text(encoding='utf-8')
-
-          direct = {
-              "    { id: 'day-7-map', dayNumber: 7, href: '#/day/day-7', name: 'Dolomites · יום נוסף בתכנון', label: 'יום 7 · 8.10', ...coords.cortina },": "    { id: 'day-7-map', dayNumber: 7, href: '#/day/day-7', name: 'Val di Fassa / QC Terme Dolomiti', label: 'יום 7 · 8.10', ...coords.pozza },",
-              "    { id: 'day-8-map', dayNumber: 8, href: '#/day/day-8', name: 'QC Terme Dolomiti / Pozza di Fassa', label: 'יום 8 · 9.10', ...coords.pozza },": "    { id: 'day-8-map', dayNumber: 8, href: '#/day/day-8', name: 'Val di Fassa · יום נוסף', label: 'יום 8 · 9.10', ...coords.pozza },",
-              "    coords.treCime,\n    coords.cortina,\n    coords.pozza,\n    coords.varone,": "    coords.treCime,\n    coords.pozza,\n    coords.pozza,\n    coords.varone,",
-              "    { id: 'qc-terme', name: 'QC Terme Dolomiti · כניסת ערב', category: 'Activity', date: '2026-10-09', status: 'to-book' },": "    { id: 'qc-terme', name: 'QC Terme Dolomiti · כניסת ערב', category: 'Activity', date: '2026-10-08', status: 'to-book' },",
-          }
-          for old, new in direct.items():
-              if old not in s:
-                  raise SystemExit('Missing expected text: ' + old[:80])
-              s = s.replace(old, new, 1)
-
-          map_replacement = '\n'.join([
-              "  'day-7': {",
-              "    points: [",
-              "      { name: 'Val di Fassa / Pozza di Fassa', label: 'הגעה לאזור · QC Terme Dolomiti בערב · לילה 1 מתוך 2', ...coords.pozza },",
-              "    ],",
-              "    routePath: [coords.cortina, coords.pozza],",
-              "  },",
-              "  'day-8': {",
-              "    points: [",
-              "      { name: 'Val di Fassa / Pozza di Fassa', label: 'יום טיול מלא באזור · לילה 2 מתוך 2', ...coords.pozza },",
-              "    ],",
-              "    routePath: [coords.pozza],",
-              "  },",
-              "  'day-9': {",
-          ])
-          map_pattern = re.compile(r"  'day-7': \{.*?\n  \},\n  'day-8': \{.*?\n  \},\n  'day-9': \{", re.S)
-          s, n = map_pattern.subn(map_replacement, s, count=1)
-          if n != 1:
-              raise SystemExit('Expected one day-map replacement, got ' + str(n))
-
-          days_replacement = '\n'.join([
-              "    {",
-              "      id: 'day-7', number: 7, date: '2026-10-08',",
-              "      startBase: 'Cortina / San Vito di Cadore',",
-              "      title: 'Cortina → Val di Fassa + QC Terme Dolomiti',",
-              "      overviewPoint: 'Val di Fassa / QC Terme Dolomiti',",
-              "      area: 'Val di Fassa / Pozza di Fassa',",
-              "      routeLabel: 'Cortina / San Vito di Cadore → Pozza di Fassa → QC Terme Dolomiti',",
-              "      overnight: 'Pozza di Fassa / Val di Fassa · לילה 1 מתוך 2',",
-              "      drivingTime: 'כ־1.5–2 שעות · בהתאם למסלול',",
-              "      walking: 'יום מעבר רגוע + ספא בערב',",
-              "      highlights: ['Val di Fassa', 'QC Terme Dolomiti'],",
-              "      alerts: ['המסלול המדויק עד ההגעה ל־Val di Fassa נשאר גמיש בהתאם למזג האוויר.'],",
-              "      stops: [",
-              "        drive('drive-cortina-pozza', 'Cortina / San Vito di Cadore → Pozza di Fassa', 'כ־1.5–2 שעות', 'בוקר / צהריים'),",
-              "        place({ id: 'val-di-fassa-arrival', type: 'activity', name: 'Val di Fassa / Pozza di Fassa · הגעה לאזור', time: 'צהריים / אחה״צ', status: 'planning', coordinates: coords.pozza, details: { notes: 'זמן לארוחה, צ׳ק־אין ומנוחה לפני הספא. הפעילות המדויקת לפני הספא עדיין פתוחה.' } }),",
-              "        place({ id: 'qc-terme', type: 'activity', name: 'QC Terme Dolomiti', time: 'ערב', duration: 'בהתאם להזמנה', status: 'to-book', coordinates: coords.pozza, details: { reservation: 'כניסת ערב · שעה מדויקת תיקבע בעת ההזמנה', notes: 'הספא מתוכנן לערב הראשון באזור Val di Fassa.' } }),",
-              "        place({ id: 'pozza-overnight-1', type: 'hotel', name: 'Pozza di Fassa / Val di Fassa · לילה 1 מתוך 2', time: 'אחרי הספא', status: 'to-book', coordinates: coords.pozza, details: { notes: 'נשארים באזור גם ללילה הבא, כך שאין נסיעה ארוכה אחרי הספא.' } }),",
-              "      ],",
-              "    },",
-              "    {",
-              "      id: 'day-8', number: 8, date: '2026-10-09',",
-              "      startBase: 'Pozza di Fassa / Val di Fassa',",
-              "      title: 'Val di Fassa · יום נוסף בדולומיטים',",
-              "      overviewPoint: 'Val di Fassa',",
-              "      area: 'Val di Fassa / Dolomites',",
-              "      routeLabel: 'Pozza di Fassa → יום טיול באזור Val di Fassa → Pozza di Fassa',",
-              "      overnight: 'Pozza di Fassa / Val di Fassa · לילה 2 מתוך 2',",
-              "      drivingTime: 'ייקבע לפי המסלול הסופי באזור',",
-              "      walking: 'יום טיול גמיש · בתכנון',",
-              "      highlights: ['Val di Fassa · יום נוסף'],",
-              "      alerts: ['האטרקציות ביום הזה עדיין פתוחות לבחירה; בסיס הלינה כבר נקבע לאזור Val di Fassa / Pozza di Fassa.'],",
-              "      stops: [",
-              "        place({ id: 'val-di-fassa-full-day', type: 'activity', name: 'יום מלא באזור Val di Fassa · בתכנון', nameDirection: 'rtl', time: 'יום מלא', status: 'planning', coordinates: coords.pozza, details: { notes: 'נבחר בהמשך את המסלול והאטרקציות המדויקים ליום הזה.' } }),",
-              "        place({ id: 'pozza-overnight-2', type: 'hotel', name: 'Pozza di Fassa / Val di Fassa · לילה 2 מתוך 2', time: 'ערב', status: 'to-book', coordinates: coords.pozza, details: { notes: 'לילה נוסף באותו אזור לפני היציאה לצפון Lake Garda בבוקר 10.10.' } }),",
-              "      ],",
-              "    },",
-              "    {",
-              "      id: 'day-9'",
-          ])
-          days_pattern = re.compile(r"    \{\n      id: 'day-7'.*?\n    \},\n    \{\n      id: 'day-8'.*?\n    \},\n    \{\n      id: 'day-9'", re.S)
-          s, n = days_pattern.subn(days_replacement, s, count=1)
-          if n != 1:
-              raise SystemExit('Expected one day-data replacement, got ' + str(n))
-
-          path.write_text(s, encoding='utf-8')
-          PY
-
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git show HEAD~2:.github/workflows/static.yml > .github/workflows/static.yml
-          git add index.html .github/workflows/static.yml
-          git commit -m "Update Val di Fassa stay to two nights"
-          git push
+          # Upload entire repository
+          path: '.'
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v5
