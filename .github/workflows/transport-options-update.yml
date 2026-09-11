@@ -1,0 +1,100 @@
+name: One-time transport options update
+
+on:
+  push:
+    paths:
+      - '.github/workflows/transport-options-update.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  update-itinerary:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Update itinerary details
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+
+          path = Path('index.html')
+          s = path.read_text(encoding='utf-8')
+
+          def rep(old, new, label):
+              global s
+              if old not in s:
+                  raise SystemExit(f'Missing expected text for {label}')
+              s = s.replace(old, new, 1)
+
+          rep(
+              "  misurina: { lat: 46.5828, lng: 12.2528 },\n  braies: { lat: 46.6943, lng: 12.0859 },",
+              "  misurina: { lat: 46.5828, lng: 12.2528 },\n  sanCandido: { lat: 46.7324, lng: 12.2796 },\n  braies: { lat: 46.6943, lng: 12.0859 },",
+              'San Candido coordinates'
+          )
+
+          rep(
+              "place({ id: 'seceda-cable-up', type: 'cablecar', name: 'Ortisei → Seceda', time: '08:30–09:00', status: 'optional', coordinates: coords.seceda, details: { price: '€74 הלוך־חזור לאדם', openingHours: '08:30–18:00', notes: 'Ortisei–Furnes ו־Furnes–Seceda פתוחים עד 2.11.2026.' } })",
+              "place({ id: 'seceda-cable-up', type: 'cablecar', name: 'Seceda · הגעה ותקציב', time: '08:15–09:00', status: 'optional', coordinates: coords.seceda, details: { price: 'רכבל: €74 לאדם הלוך־חזור · €148 לזוג', openingHours: '08:30–18:00 · פתוח עד 2.11.2026', parking: 'Parking + Garage Seceda ליד התחנה: €2.50 לכל 30 דק׳ בין 05:00–19:00 · מקסימום €30 ליום', notes: 'אפשרות רכב: נוסעים רק עד תחנת הרכבל ב־Ortisei וחונים שם; אין כביש שמגיע לפסגת Seceda ולכן הרכב לא מחליף את הרכבל. אפשרות חסכונית יותר לחניה: להגיע לתחנה ברגל/תחבורה מקומית מהמלון אם נלון קרוב. זמן העלייה המתוכנן כולל חניה + שני מקטעי הרכבל Ortisei–Furnes–Seceda.' } })",
+              'Seceda access comparison'
+          )
+
+          rep(
+              "place({ id: 'alpe-cable-up', type: 'cablecar', name: 'Ortisei → Alpe di Siusi', time: '08:30–09:00', coordinates: coords.alpeSiusi, details: { price: '€41 הלוך־חזור לאדם', openingHours: 'פועל עד 18:00 בתקופה הזו' } })",
+              "place({ id: 'alpe-cable-up', type: 'planning', name: 'Alpe di Siusi · רכב או רכבל', time: '07:45–09:00', coordinates: coords.alpeSiusi, details: { price: 'רכב: P2 Compatsch €30 לרכב ליום · P1 Spitzbühl €15 לרכב + כ־30 דק׳ הליכה בעלייה | רכבל מ־Ortisei: €41 לאדם הלוך־חזור · €82 לזוג', openingHours: 'רכב פרטי רשאי לעלות ל־Compatsch רק לפני 09:00; אפשר לרדת בכל שעה. רכבל Ortisei פועל 08:30–18:00 בתאריך שלנו.', parking: 'מ־29.6.2026 חובה להזמין מראש P1/P2 אונליין, עד 6 ימים לפני ההגעה.', notes: 'אופציה 1 — רכב: יציאה מ־Ortisei בערך 07:45–08:00, כ־35 דק׳ נסיעה ל־Compatsch, חיסכון של כ־€52 לזוג לעומת רכבל Ortisei אם בוחרים P2. אופציה 2 — רכבל: יוצאים מהמלון סביב 08:15, עלייה ב־08:30, בלי נסיעה להרמה. נחליט בהמשך לפי לינה ומזג אוויר.' } })",
+              'Alpe di Siusi access comparison'
+          )
+
+          rep("title: 'Tre Cime + Misurina + Lago di Braies'", "title: 'Tre Cime + Misurina + Funbob + Lago di Braies'", 'Day 6 title')
+          rep("routeLabel: 'Cortina → Tre Cime → Lago di Misurina → Lago di Braies → Cortina'", "routeLabel: 'Cortina → Tre Cime → Lago di Misurina → San Candido / Funbob → Lago di Braies → Cortina'", 'Day 6 route')
+          rep("drivingTime: 'כ־2–2.5 שעות מפוצלות'", "drivingTime: 'כ־2.5–3 שעות מפוצלות'", 'Day 6 driving time')
+          rep("highlights: ['Tre Cime di Lavaredo', 'Lago di Braies']", "highlights: ['Tre Cime di Lavaredo', 'Funbob Monte Baranci', 'Lago di Braies']", 'Day 6 highlights')
+
+          rep(
+              "        drive('drive-tre-cime-misurina', 'Tre Cime / Rifugio Auronzo → Lago di Misurina', '≈20 דקות', '≈11:30'),\n        place({ id: 'misurina', name: 'Lago di Misurina', time: '11:45–12:30', duration: '30–45 דקות', coordinates: coords.misurina, details: { notes: 'עצירת נוף + משהו קטן לאכול.' } }),\n        drive('drive-misurina-braies', 'Tre Cime / Misurina → Lago di Braies', 'כ־50 דקות', '12:30–13:30'),\n        place({ id: 'braies', name: 'Lago di Braies', time: '13:30–16:00', duration: '2–2.5 שעות', coordinates: coords.braies, details: { notes: 'אפשר להקיף את האגם: כ־3.6 ק״מ וכשעה, אבל לא חובה אם עייפים.' } }),\n        drive('drive-braies-cortina', 'Lago di Braies → Cortina', 'כ־45 דקות', '16:00–17:00'),",
+              "        drive('drive-tre-cime-misurina', 'Tre Cime / Rifugio Auronzo → Lago di Misurina', '≈20 דקות', '≈11:30'),\n        place({ id: 'misurina', name: 'Lago di Misurina', time: '11:45–12:15', duration: 'כ־30 דקות', coordinates: coords.misurina, details: { notes: 'עצירת נוף קצרה. את הארוחה העיקרית נשמור ל־Monte Baranci.' } }),\n        drive('drive-misurina-sancandido', 'Lago di Misurina → San Candido / Monte Baranci', 'כ־25 דקות', '12:15–12:45'),\n        place({ id: 'funbob-baranci', type: 'activity', name: 'Monte Baranci + Funbob', time: '12:45–14:20', duration: 'כ־1.5 שעות', coordinates: coords.sanCandido, details: { price: 'כיסא עלייה: €21.50 לאדם אונליין / €24 בקופה · Funbob ירידה אחת: €21.50 לאדם · כיסא ירידה: €10 אונליין / €11 בקופה · כיסא הלוך־חזור: €31.50 אונליין / €35 בקופה', openingHours: 'ב־7.10: Funbob 09:15–17:30', parking: 'Parking Baranci גדול ליד התחנה · חינם עם כרטיס רכבל תקף', notes: 'לו״ז: 12:45 חניה וכרטיסים → עלייה בכיסא → 13:00–14:00 זמן למעלה, נוף + ארוחה בבקתה → סביב 14:00 ירידה. שתי אופציות: (1) שניכם Funbob — כ־€86 לזוג אונליין כולל העלייה בכיסא; (2) אייל יורד Funbob ושיר יורדת בכיסא — כ־€74.50 לזוג אונליין. אפשר גם ששניכם תרדו בכיסא — €63 לזוג הלוך־חזור אונליין.' } }),\n        drive('drive-sancandido-braies', 'San Candido / Monte Baranci → Lago di Braies', 'כ־20–25 דקות', '≈14:20'),\n        place({ id: 'braies', name: 'Lago di Braies', time: '14:45–16:15', duration: 'כ־1.5 שעות', coordinates: coords.braies, details: { notes: 'זמן רגוע לתצפיות ולחלק מההליכה סביב האגם. ההקפה המלאה כ־3.6 ק״מ וכשעה — רק אם יש כוח וזמן.' } }),\n        drive('drive-braies-cortina', 'Lago di Braies → Cortina', 'כ־45 דקות', '16:15–17:15'),",
+              'Day 6 Funbob timeline'
+          )
+
+          rep(
+              "      { name: 'Lago di Misurina', label: 'כ־20 דק׳ · 11:45–12:30', ...coords.misurina },\n      { name: 'Lago di Braies', label: 'כ־50 דק׳ · 13:30–16:00', ...coords.braies },\n    ],\n    routePath: [coords.cortina, coords.treCime, coords.misurina, coords.braies, coords.cortina],",
+              "      { name: 'Lago di Misurina', label: 'כ־20 דק׳ · 11:45–12:15', ...coords.misurina },\n      { name: 'Monte Baranci / Funbob', label: 'כ־25 דק׳ · 12:45–14:20', ...coords.sanCandido },\n      { name: 'Lago di Braies', label: 'כ־20–25 דק׳ · 14:45–16:15', ...coords.braies },\n    ],\n    routePath: [coords.cortina, coords.treCime, coords.misurina, coords.sanCandido, coords.braies, coords.cortina],",
+              'Day 6 map'
+          )
+
+          rep(
+              "          description: 'מעבר הרים דרמטי שמתאים לעצירת נוף בדרך או כחלק מהיום באזור. עדיין לא שובץ סופית בלו״ז.',\n          details: { notes: 'אפשרות ל־8.10 בהתאם למזג האוויר ולמסלול שנבחר.' },",
+              "          description: 'מעבר הרים דרמטי שאפשר להגיע אליו ישירות ברכב. אם רוצים את התצפית הגבוהה של Sass Pordoi ממשיכים מכאן ברכבל.',\n          details: { openingHours: 'Sass Pordoi בתאריך שלנו: 09:00–17:00', price: 'רכב עד Passo Pordoi: ללא כרטיס רכבל בדרך · החניה ליד התחנה בתשלום, אך התעריף לא מפורסם באתר הרשמי', notes: 'מ־Pozza di Fassa כ־28–32 דק׳ נסיעה. זה הכיוון החסכוני אם נבחר Sass Pordoi: רכב עד המעבר ואז רק הרכבל האחרון לפסגה.' },",
+              'Passo Pordoi option details'
+          )
+
+          rep(
+              "          description: 'עלייה ברכבל לתצפית גבוהה מאוד על הדולומיטים, בלי צורך בטרק ארוך. עדיין לא שובץ סופית בלו״ז.',\n          details: { notes: 'אפשר לשלב עם Passo Pordoi אם התנאים מתאימים.' },",
+              "          description: 'תצפית בגובה כ־2,950 מ׳. אי אפשר להגיע לפסגה ברכב; הרכב מגיע עד Passo Pordoi ומשם הרכבל עולה לפסגה בכ־4 דקות.',\n          details: { openingHours: '14.5–1.11.2026 · בתאריך שלנו 09:00–17:00', price: 'אופציה חסכונית: רכב ל־Passo Pordoi + רכבל אחרון €32 לאדם הלוך־חזור · €64 לזוג. אופציית רכבלים מ־Canazei/Alba: מסלול יום €47 לאדם · €94 לזוג.', notes: 'רכב מ־Pozza ל־Passo Pordoi כ־28–32 דק׳. באופציית הרכבלים מהעמק יש גם כ־30 דק׳ הליכה בירידה עד Passo Pordoi לפני העלייה האחרונה. כרגע זו אפשרות בלבד.' },",
+              'Sass Pordoi option details'
+          )
+
+          rep(
+              "          description: 'אגם הררי קטן עם נוף לרכסים שמסביב. אפשרות ליום האחרון בדולומיטים לפני הספא.',\n          details: { notes: 'עדיין לא שובץ סופית; נחליט בהמשך לפי מזג האוויר והקצב.' },",
+              "          description: 'אגם הררי קטן שנגיש ישירות ברכב — אין צורך ברכבל בשביל האגם עצמו.',\n          details: { price: 'אין דמי כניסה לאגם · חניה ראשית: €5 עד שעה / €8 עד שעתיים / €13 עד 6 שעות', notes: 'מ־Pozza di Fassa כ־16 דק׳ נסיעה. זו האופציה הפשוטה והזולה: רכב + חניה בלבד. אם נחליט להמשיך גם ל־Rosengarten הגבוה, שם כבר נכנס רכבל.' },",
+              'Carezza option details'
+          )
+
+          rep(
+              "          description: 'אזור נופי סביב רכס Rosengarten, שמתאים לשילוב עם Carezza או למסלול קצר באזור.',\n          details: { notes: 'אפשרות בלבד; לא חלק סגור מהלו״ז כרגע.' },",
+              "          description: 'אפשר ליהנות מהרכס מהכביש ומאזור Carezza בלי רכבל, או לעלות גבוה יותר ברכבל Paolina / König Laurin.',\n          details: { openingHours: 'ב־9.10: Paolina ו־König Laurin עד 17:45', price: 'רכבל סטנדרטי הלוך־חזור: €26 לאדם · €52 לזוג. Paolina: חניה חינם מוגבלת ליד התחנה או חניה בתשלום ממול; Frommer Alm: חניה בתשלום.', notes: 'אופציה 1 — רכב בלבד: משלבים תצפיות + Lago di Carezza וחוסכים רכבל. אופציה 2 — רכב עד בסיס הרכבל ואז €52 לזוג כדי לעלות גבוה יותר לרכס. נחליט לפי מזג האוויר והחשק.' },",
+              'Rosengarten comparison details'
+          )
+
+          path.write_text(s, encoding='utf-8')
+          print('Updated itinerary transport and Funbob details successfully')
+          PY
+
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add index.html
+          git rm .github/workflows/transport-options-update.yml
+          git commit -m "Add Dolomites transport costs and Funbob plan"
+          git push
