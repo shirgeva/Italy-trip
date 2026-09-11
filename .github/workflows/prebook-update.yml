@@ -1,0 +1,58 @@
+name: One-time prebook update
+
+on:
+  push:
+    paths:
+      - '.github/workflows/prebook-update.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+      - name: Update pre-booking items
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          p = Path('index.html')
+          s = p.read_text()
+          old_res = """    { id: 'hotels', name: 'לינה לאורך המסלול', category: 'Hotels', status: 'to-book' },
+    { id: 'tre-cime', name: 'Tre Cime · access / parking', category: 'Activity', date: '2026-10-07', status: 'to-book' },
+    { id: 'qc-terme', name: 'QC Terme Dolomiti · כניסת ערב', category: 'Activity', date: '2026-10-09', status: 'to-book' },
+    { id: 'monza', name: 'Monza · tickets / parking', category: 'Activity', date: '2026-10-11', status: 'planning' },"""
+          new_res = """    { id: 'hotels', name: 'לינה לאורך המסלול', category: 'Hotels', status: 'to-book' },
+    { id: 'alpe-parking', name: 'Alpe di Siusi · חניה P1/P2 · ההזמנה נפתחת 30.9', category: 'Parking', date: '2026-10-06', status: 'to-book' },
+    { id: 'tre-cime', name: 'Tre Cime · חניה Rifugio Auronzo · ההזמנות פתוחות', category: 'Parking', date: '2026-10-07', status: 'to-book' },
+    { id: 'qc-terme', name: 'QC Terme Dolomiti · כניסת ערב · להזמין מראש', category: 'Activity', date: '2026-10-09', status: 'to-book' },
+    { id: 'monza', name: 'Monza · tickets / parking', category: 'Activity', date: '2026-10-11', status: 'planning' },"""
+          if old_res not in s:
+              raise SystemExit('reservations block not found')
+          s = s.replace(old_res, new_res, 1)
+
+          old_check = """    { id: 'hotels', label: 'לסגור את בסיסי הלינה לאורך המסלול', done: false },
+    { id: 'tre-cime', label: 'להזמין Tre Cime / חניה בהתאם לפתיחת הכביש', done: false },
+    { id: 'qc', label: 'להזמין QC Terme Dolomiti', done: false },
+    { id: 'monza', label: 'לעקוב אחרי כרטיסים, חניה ולו״ז Monza', done: false },"""
+          new_check = """    { id: 'hotels', label: 'לסגור את בסיסי הלינה לאורך המסלול', done: false },
+    { id: 'alpe-parking', label: '30.9 · להזמין חניה Alpe di Siusi אם בוחרים לעלות ברכב', done: false },
+    { id: 'tre-cime', label: 'להזמין עכשיו Tre Cime · חניה Rifugio Auronzo · €40 לרכב', done: false },
+    { id: 'qc', label: 'להזמין QC Terme Dolomiti לערב 9.10', done: false },
+    { id: 'monza', label: 'לעקוב אחרי כרטיסים, חניה ולו״ז Monza', done: false },"""
+          if old_check not in s:
+              raise SystemExit('checklist block not found')
+          s = s.replace(old_check, new_check, 1)
+          p.write_text(s)
+          PY
+      - name: Commit update and remove one-time workflow
+        run: |
+          git config user.name "shirgeva"
+          git config user.email "shirgeva11@gmail.com"
+          git rm .github/workflows/prebook-update.yml
+          git add index.html
+          git commit -m "Update advance booking reminders"
+          git push
