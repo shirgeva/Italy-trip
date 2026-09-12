@@ -31,22 +31,25 @@ jobs:
           if "id: 'val-gardena-wood-carving'" in s:
               raise SystemExit(0)
           old = "      highlights: ['Seceda'],\n      stops: ["
-          new = """      highlights: ['Seceda'],
-      areaOptions: [
-        {
-          id: 'val-gardena-wood-carving',
-          name: 'Val Gardena Active – Wood Carving Class',
-          category: 'סדנת גילוף עץ · אופציה',
-          description: 'סדנת גילוף עץ מסורתית של Val Gardena. לומדים טכניקות בסיסיות של גילוף בעץ ויוצרים תבליט קטן.',
-          details: {
-            duration: 'כ־3 שעות',
-            price: 'כ־€90 לאדם',
-            availability: 'התאריך האחרון שפורסם כרגע הוא 2.10.2026; עוקבים אחרי פתיחת תאריכים נוספים סביב 5.10.',
-            notes: 'Monitoring availability — if a suitable date opens for October 5, consider adding this after Seceda and replacing part of the free afternoon in Ortisei.',
-          },
-        },
-      ],
-      stops: ["""
+          lines = [
+              "      highlights: ['Seceda'],",
+              "      areaOptions: [",
+              "        {",
+              "          id: 'val-gardena-wood-carving',",
+              "          name: 'Val Gardena Active – Wood Carving Class',",
+              "          category: 'סדנת גילוף עץ · אופציה',",
+              "          description: 'סדנת גילוף עץ מסורתית של Val Gardena. לומדים טכניקות בסיסיות של גילוף בעץ ויוצרים תבליט קטן.',",
+              "          details: {",
+              "            duration: 'כ־3 שעות',",
+              "            price: 'כ־€90 לאדם',",
+              "            availability: 'התאריך האחרון שפורסם כרגע הוא 2.10.2026; עוקבים אחרי פתיחת תאריכים נוספים סביב 5.10.',",
+              "            notes: 'Monitoring availability — if a suitable date opens for October 5, consider adding this after Seceda and replacing part of the free afternoon in Ortisei.',",
+              "          },",
+              "        },",
+              "      ],",
+              "      stops: [",
+          ]
+          new = "\n".join(lines)
           if old not in s:
               raise SystemExit('Day 4 insertion point not found')
           p.write_text(s.replace(old, new, 1))
