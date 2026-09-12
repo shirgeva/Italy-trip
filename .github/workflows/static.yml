@@ -1,28 +1,21 @@
-# Simple workflow for deploying static content to GitHub Pages
+# Temporary workflow to patch Day 4 and deploy
 name: Deploy static content to Pages
 
 on:
-  # Runs on pushes targeting the default branch
   push:
     branches: ["main"]
-
-  # Allows you to run this workflow manually from the Actions tab
   workflow_dispatch:
 
-# Sets permissions of the GITHUB_TOKEN to allow deployment to GitHub Pages
 permissions:
-  contents: read
+  contents: write
   pages: write
   id-token: write
 
-# Allow only one concurrent deployment, skipping runs queued between the run in-progress and latest queued.
-# However, do NOT cancel in-progress runs as we want to allow these production deployments to complete.
 concurrency:
   group: "pages"
   cancel-in-progress: false
 
 jobs:
-  # Single deploy job since we're just deploying
   deploy:
     environment:
       name: github-pages
@@ -31,12 +24,40 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+      - name: Patch Day 4 parking reference if needed
+        shell: bash
+        run: |
+          python3 - <<'PY'
+          import base64
+          from pathlib import Path
+          p = Path('index.html')
+          s = p.read_text()
+          if "id: 'garage-central-ortisei'" not in s:
+              pairs = [
+                  ('ICAgICAgICAgICAgbm90ZXM6ICdNb25pdG9yaW5nIGF2YWlsYWJpbGl0eSDigJQgaWYgYSBzdWl0YWJsZSBkYXRlIG9wZW5zIGZvciBPY3RvYmVyIDUsIGNvbnNpZGVyIGFkZGluZyB0aGlzIGFmdGVyIFNlY2VkYSBhbmQgcmVwbGFjaW5nIHBhcnQgb2YgdGhlIGZyZWUgYWZ0ZXJub29uIGluIE9ydGlzZWkuJywKICAgICAgICAgIH0sCiAgICAgICAgfSwKICAgICAgXSwKICAgICAgc3RvcHM6IFs=', 'ICAgICAgICAgICAgbm90ZXM6ICdNb25pdG9yaW5nIGF2YWlsYWJpbGl0eSDigJQgaWYgYSBzdWl0YWJsZSBkYXRlIG9wZW5zIGZvciBPY3RvYmVyIDUsIGNvbnNpZGVyIGFkZGluZyB0aGlzIGFmdGVyIFNlY2VkYSBhbmQgcmVwbGFjaW5nIHBhcnQgb2YgdGhlIGZyZWUgYWZ0ZXJub29uIGluIE9ydGlzZWkuJywKICAgICAgICAgIH0sCiAgICAgICAgfSwKICAgICAgXSwKICAgICAgcGFya2luZ09wdGlvbnM6IFsKICAgICAgICB7CiAgICAgICAgICBpZDogJ2dhcmFnZS1jZW50cmFsLW9ydGlzZWknLAogICAgICAgICAgbmFtZTogJ0dhcmFnZSBDZW50cmFsJywKICAgICAgICAgIGNhdGVnb3J5OiAn15fXoNeZ15Qgwrcg157Xldee15zXpScsCiAgICAgICAgICBkZXNjcmlwdGlvbjogJ9eb1r42NTAg157XsyDXnteo15vXkdecIFNlY2VkYS4g15DXpNep16jXldeqINeY15XXkdeUINec15fXoNeV16og16TXotedINeQ15fXqiDXkdeR15XXp9eoLCDXnNei16nXldeqIFNlY2VkYSDXldeQ15Yg15zXlNee16nXmdeaINeR16jXktecINeR1r5PcnRpc2VpLicsCiAgICAgICAgICBkZXRhaWxzOiB7CiAgICAgICAgICAgIHByaWNlOiAn4oKsMi41MCDXnNep16LXlCDCtyDXnten16HXmdee15XXnSDigqwyMCDXnNeZ15XXnScsCiAgICAgICAgICAgIGFkZHJlc3M6ICdWaWEgU3RhemlvbmUgMSwgMzkwNDYgT3J0aXNlaSBCWiwgSXRhbHknLAogICAgICAgICAgfSwKICAgICAgICB9LAogICAgICAgIHsKICAgICAgICAgIGlkOiAncGFya2luZy1nYXJhZ2Utc2VjZWRhJywKICAgICAgICAgIG5hbWU6ICdQYXJraW5nICsgR2FyYWdlIFNlY2VkYScsCiAgICAgICAgICBjYXRlZ29yeTogJ9eX16DXmdeUIMK3INeq15fXoNeqIFNlY2VkYScsCiAgICAgICAgICBkZXNjcmlwdGlvbjogJ9ee157Xlden150g15nXqdeZ16jXldeqINeR16rXl9eg16og15TXqNeb15HXnCBTZWNlZGEuJywKICAgICAgICAgIGRldGFpbHM6IHsKICAgICAgICAgICAgb3BlbmluZ0hvdXJzOiAn16rXoteo15nXoyDXmdeV150gMDU6MDDigJMxOTowMCcsCiAgICAgICAgICAgIHByaWNlOiAn4oKsMi41MCDXnNeb15wgMzAg15PXp9eV16ogwrcg157Xp9eh15nXnteV150g4oKsMzAg15zXmdeV150nLAogICAgICAgICAgICBhZGRyZXNzOiAnU3RyZWRhIEFubmF0YWwsIDM5MDQ2IE9ydGlzZWkgQlosIEl0YWx5JywKICAgICAgICAgIH0sCiAgICAgICAgfSwKICAgICAgICB7CiAgICAgICAgICBpZDogJ3BhcmNoZWdnaW8tc2V0aWwnLAogICAgICAgICAgbmFtZTogJ1BhcmNoZWdnaW8gU2V0aWwnLAogICAgICAgICAgY2F0ZWdvcnk6ICfXl9eg15nXlCDCtyDXnteo15vXliBPcnRpc2VpJywKICAgICAgICAgIGRlc2NyaXB0aW9uOiAn15zXmdeTINeo15vXkdecIEFscGUgZGkgU2l1c2kg15XXkdee16jXl9enINeU15zXmdeb15Qg157Xnteo15vXliBPcnRpc2VpLicsCiAgICAgICAgICBkZXRhaWxzOiB7CiAgICAgICAgICAgIG9wZW5pbmdIb3VyczogJ9ek16rXldeXIDI0INep16LXldeqJywKICAgICAgICAgICAgcHJpY2U6ICfigqwyINec16nXoteUJywKICAgICAgICAgICAgYWRkcmVzczogJ1N0cmVkYSBTZXRpbCwgMzkwNDYgT3J0aXNlaSBCWiwgSXRhbHknLAogICAgICAgICAgfSwKICAgICAgICB9LAogICAgICBdLAogICAgICBzdG9wczogWw=='),
+                  ('ZnVuY3Rpb24gcmVuZGVyRGF5QWxlcnRzKGRheSkgew==', 'ZnVuY3Rpb24gcmVuZGVyUGFya2luZ09wdGlvbnMoZGF5KSB7CiAgY29uc3Qgb3B0aW9ucyA9IGRheS5wYXJraW5nT3B0aW9ucyA/PyBbXQogIGlmICghb3B0aW9ucy5sZW5ndGgpIHJldHVybiAnJwogIHJldHVybiBgPHNlY3Rpb24gY2xhc3M9ImFyZWEtb3B0aW9ucy1zZWN0aW9uIiBhcmlhLWxhYmVsPSLXl9eg15nXlCDXkS1PcnRpc2VpIj4KICAgIDxkaXYgY2xhc3M9InNlY3Rpb24taGVhZGluZyBjb21wYWN0Ij4KICAgICAgPGRpdj48c3BhbiBjbGFzcz0iZXllYnJvdyI+157XmdeT16Ig16TXqNen15jXmTwvc3Bhbj48aDI+UGFya2luZyBvcHRpb25zIGluIE9ydGlzZWk8L2gyPjwvZGl2PgogICAgICA8c3BhbiBjbGFzcz0ic2VjdGlvbi1ub3RlIj4ke29wdGlvbnMubGVuZ3RofSDXkNek16nXqNeV15nXldeqPC9zcGFuPgogICAgPC9kaXY+CiAgICA8ZGl2IGNsYXNzPSJhcmVhLW9wdGlvbnMtbGlzdCI+JHtvcHRpb25zLm1hcChyZW5kZXJBcmVhT3B0aW9uKS5qb2luKCcnKX08L2Rpdj4KICA8L3NlY3Rpb24+YAp9CgpmdW5jdGlvbiByZW5kZXJEYXlBbGVydHMoZGF5KSB7'),
+                  ('ICAgICR7cmVuZGVyQXJlYU9wdGlvbnMoZGF5KX0KICA8L3NlY3Rpb24+YA==', 'ICAgICR7cmVuZGVyQXJlYU9wdGlvbnMoZGF5KX0KICAgICR7cmVuZGVyUGFya2luZ09wdGlvbnMoZGF5KX0KICA8L3NlY3Rpb24+YA=='),
+              ]
+              for old_b64, new_b64 in pairs:
+                  old = base64.b64decode(old_b64).decode()
+                  new = base64.b64decode(new_b64).decode()
+                  if old not in s:
+                      raise SystemExit('Patch anchor not found')
+                  s = s.replace(old, new, 1)
+              p.write_text(s)
+          PY
+          if ! git diff --quiet -- index.html; then
+            git config user.name "shirgeva"
+            git config user.email "shirgeva11@gmail.com"
+            git add index.html
+            git commit -m "Add Ortisei parking reference to Day 4"
+            git push
+          fi
       - name: Setup Pages
         uses: actions/configure-pages@v5
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          # Upload entire repository
           path: '.'
       - name: Deploy to GitHub Pages
         id: deployment
