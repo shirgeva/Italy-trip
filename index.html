@@ -1065,6 +1065,40 @@ const trip = {
           },
         },
       ],
+      parkingOptions: [
+        {
+          id: 'garage-central-ortisei',
+          name: 'Garage Central',
+          category: 'חניה · מומלץ',
+          description: 'כ־650 מ׳ מרכבל Seceda. אפשרות טובה לחנות פעם אחת בבוקר, לעשות Seceda ואז להמשיך ברגל ב־Ortisei.',
+          details: {
+            price: '€2.50 לשעה · מקסימום €20 ליום',
+            address: 'Via Stazione 1, 39046 Ortisei BZ, Italy',
+          },
+        },
+        {
+          id: 'parking-garage-seceda',
+          name: 'Parking + Garage Seceda',
+          category: 'חניה · תחנת Seceda',
+          description: 'ממוקם ישירות בתחנת הרכבל Seceda.',
+          details: {
+            openingHours: 'תעריף יום 05:00–19:00',
+            price: '€2.50 לכל 30 דקות · מקסימום €30 ליום',
+            address: 'Streda Annatal, 39046 Ortisei BZ, Italy',
+          },
+        },
+        {
+          id: 'parcheggio-setil',
+          name: 'Parcheggio Setil',
+          category: 'חניה · מרכז Ortisei',
+          description: 'ליד רכבל Alpe di Siusi ובמרחק הליכה ממרכז Ortisei.',
+          details: {
+            openingHours: 'פתוח 24 שעות',
+            price: '€2 לשעה',
+            address: 'Streda Setil, 39046 Ortisei BZ, Italy',
+          },
+        },
+      ],
       stops: [
         place({ id: 'seceda-cable-up', type: 'cablecar', name: 'Seceda · הגעה ותקציב', time: '08:15–09:00', status: 'optional', coordinates: coords.seceda, details: { price: 'רכבל: €74 לאדם הלוך־חזור · €148 לזוג', openingHours: '08:30–18:00 · פתוח עד 2.11.2026', parking: 'Parking + Garage Seceda ליד התחנה: €2.50 לכל 30 דק׳ בין 05:00–19:00 · מקסימום €30 ליום', notes: 'אפשרות רכב: נוסעים רק עד תחנת הרכבל ב־Ortisei וחונים שם; אין כביש שמגיע לפסגת Seceda ולכן הרכב לא מחליף את הרכבל. אפשרות חסכונית יותר לחניה: להגיע לתחנה ברגל/תחבורה מקומית מהמלון אם נלון קרוב. זמן העלייה המתוכנן כולל חניה + שני מקטעי הרכבל Ortisei–Furnes–Seceda.' } }),
         place({ id: 'seceda', name: 'Seceda', time: '09:00–13:00', duration: 'כ־4 שעות באזור', coordinates: coords.seceda, details: { notes: 'תצפיות + הליכה קצרה באזור Fermeda/Odle. לא צריך טרק ארוך; רכבל הכיסאות Fermeda סגור בתאריך הזה ולא נחוץ למסלול.' } }),
@@ -1880,6 +1914,18 @@ function renderAreaOptions(day) {
   </section>`
 }
 
+function renderParkingOptions(day) {
+  const options = day.parkingOptions ?? []
+  if (!options.length) return ''
+  return `<section class="area-options-section" aria-label="חניה ב-Ortisei">
+    <div class="section-heading compact">
+      <div><span class="eyebrow">מידע פרקטי</span><h2>Parking options in Ortisei</h2></div>
+      <span class="section-note">${options.length} אפשרויות</span>
+    </div>
+    <div class="area-options-list">${options.map(renderAreaOption).join('')}</div>
+  </section>`
+}
+
 function renderDayAlerts(day) {
   if (!day.alerts?.length) return ''
   return `<div class="day-alerts">${day.alerts.map((alert) => `<div class="day-alert"><span aria-hidden="true">!</span><p>${esc(alert)}</p></div>`).join('')}</div>`
@@ -1913,6 +1959,7 @@ function renderDayPage(trip, day) {
       </aside>
     </div>
     ${renderAreaOptions(day)}
+    ${renderParkingOptions(day)}
   </section>`
 }
 
