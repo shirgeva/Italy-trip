@@ -1,0 +1,56 @@
+name: One-time Day 4 wood carving option
+
+on:
+  push:
+    paths:
+      - '.github/workflows/add-day4-woodcarving.yml'
+
+permissions:
+  contents: write
+
+jobs:
+  update:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+      - name: Add optional wood carving activity to Day 4
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          p = Path('index.html')
+          s = p.read_text()
+          old = """      highlights: ['Seceda'],
+      stops: ["""
+          new = """      highlights: ['Seceda'],
+      areaOptions: [
+        {
+          id: 'val-gardena-wood-carving',
+          name: 'Val Gardena Active – Wood Carving Class',
+          category: 'סדנת גילוף עץ · אופציה',
+          description: 'סדנת גילוף עץ מסורתית של Val Gardena. לומדים טכניקות בסיסיות של גילוף בעץ ויוצרים תבליט קטן.',
+          details: {
+            duration: 'כ־3 שעות',
+            price: 'כ־€90 לאדם',
+            availability: 'התאריך האחרון שפורסם כרגע הוא 2.10.2026; עוקבים אחרי פתיחת תאריכים נוספים סביב 5.10.',
+            notes: 'Monitoring availability — if a suitable date opens for October 5, consider adding this after Seceda and replacing part of the free afternoon in Ortisei.',
+          },
+        },
+      ],
+      stops: ["""
+          if old not in s:
+              raise SystemExit('Day 4 insertion point not found')
+          if "id: 'val-gardena-wood-carving'" in s:
+              raise SystemExit('Wood carving option already exists')
+          s = s.replace(old, new, 1)
+          p.write_text(s)
+          PY
+      - name: Commit update and remove one-time workflow
+        run: |
+          git config user.name "shirgeva"
+          git config user.email "shirgeva11@gmail.com"
+          git rm .github/workflows/add-day4-woodcarving.yml
+          git add index.html
+          git commit -m "Add optional Val Gardena wood carving class to Day 4"
+          git push
