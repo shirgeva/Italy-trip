@@ -27,8 +27,7 @@ jobs:
       - name: Patch Day 5 route and luggage logistics if needed
         shell: bash
         run: |
-          echo 'ZnJvbSBwYXRobGliIGltcG9ydCBQYXRoCnAgPSBQYXRoKCJpbmRleC5odG1sIikKcyA9IHAucmVhZF90ZXh0KCkKCmlmICJpZDogJ2RheTUtY2hlY2tvdXQtbHVnZ2FnZSciIGluIHM6CiAgICByYWlzZSBTeXN0ZW1FeGl0KDApCgpzdGFydCA9IHMu
-' | base64 -d | python3
+          python3 scripts/patch_day5.py
           if git diff --quiet -- index.html; then
             exit 0
           fi
