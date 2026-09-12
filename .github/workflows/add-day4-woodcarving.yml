@@ -1,9 +1,6 @@
-name: One-time Day 4 wood carving option
+name: Day 4 wood carving updater
 
-on:
-  push:
-    paths:
-      - '.github/workflows/add-day4-woodcarving.yml'
+on: [push]
 
 permissions:
   contents: write
@@ -13,17 +10,16 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
-        with:
-          token: ${{ secrets.GITHUB_TOKEN }}
-      - name: Add optional wood carving activity to Day 4
+      - name: Patch Day 4
+        shell: bash
         run: |
           python3 - <<'PY'
           from pathlib import Path
           p = Path('index.html')
           s = p.read_text()
-          old = """      highlights: ['Seceda'],
-      stops: ["""
-          new = """      highlights: ['Seceda'],
+          if "id: 'val-gardena-wood-carving'" not in s:
+              old = "      highlights: ['Seceda'],\n      stops: ["
+              new = """      highlights: ['Seceda'],
       areaOptions: [
         {
           id: 'val-gardena-wood-carving',
@@ -39,17 +35,16 @@ jobs:
         },
       ],
       stops: ["""
-          if old not in s:
-              raise SystemExit('Day 4 insertion point not found')
-          if "id: 'val-gardena-wood-carving'" in s:
-              raise SystemExit('Wood carving option already exists')
-          s = s.replace(old, new, 1)
-          p.write_text(s)
+              if old not in s:
+                  raise SystemExit('Day 4 insertion point not found')
+              s = s.replace(old, new, 1)
+              p.write_text(s)
           PY
-      - name: Commit update and remove one-time workflow
+      - name: Commit and remove updater
+        shell: bash
         run: |
-          git config user.name "shirgeva"
-          git config user.email "shirgeva11@gmail.com"
+          git config user.name shirgeva
+          git config user.email shirgeva11@gmail.com
           git rm .github/workflows/add-day4-woodcarving.yml
           git add index.html
           git commit -m "Add optional Val Gardena wood carving class to Day 4"
