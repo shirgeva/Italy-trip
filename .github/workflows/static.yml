@@ -31,6 +31,7 @@ jobs:
         run: |
           python3 scripts/test_google_maps_migration.py
           python3 scripts/test_daily_accommodation_summary.py
+          python3 scripts/test_carezza_loacker_update.py
 
       - name: Configure Google Maps key for deploy
         env:
