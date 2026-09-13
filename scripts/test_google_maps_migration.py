@@ -1,0 +1,65 @@
+from pathlib import Path
+
+html = Path('index.html').read_text()
+workflow = Path('.github/workflows/static.yml').read_text()
+
+required_html = [
+    "__GOOGLE_MAPS_API_KEY__",
+    "function getGoogleMapsApiKey()",
+    "function loadGoogleMaps()",
+    "async function createGoogleMap(",
+    "async function enhanceMapsWithGoogle(",
+    "async function enhanceMaps(trip)",
+    "function googleMapsDirectionsUrlsForDay(",
+    "function renderGoogleMapsRouteButtons(",
+    "פתח מסלול ב-Google Maps",
+    "routeModes:",
+    "gestureHandling: 'cooperative'",
+    "enhanceMaps(trip)",
+]
+missing = [token for token in required_html if token not in html]
+assert not missing, f"Missing Google Maps migration features: {missing}"
+
+required_workflow = [
+    "GOOGLE_MAPS_API_KEY: ${{ secrets.GOOGLE_MAPS_API_KEY }}",
+    "__GOOGLE_MAPS_API_KEY__",
+]
+missing_workflow = [token for token in required_workflow if token not in workflow]
+assert not missing_workflow, f"Missing deploy-time key injection: {missing_workflow}"
+
+# Leaflet must remain available as the fallback until Google Maps is activated.
+assert "function loadLeaflet()" in html
+assert "async function enhanceMapsWithLeaflet(trip)" in html
+assert "https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" in html
+
+# Never commit a real Google Maps browser key into the public source.
+assert "AIza" not in html
+
+# Latest itinerary route decisions must remain unchanged by the map migration.
+route_sentinels = [
+    "routePath: [coords.echoBressanone, coords.alpeSiusi, coords.passoGardena, coords.postResidence]",
+    "routePath: [coords.postResidence, coords.treCime, coords.misurina, coords.braies, coords.postResidence, coords.sanCandido, coords.postResidence]",
+    "routePath: [coords.postResidence, coords.passoSella, coords.friedrichAugust, coords.passoSella, coords.dolomitiExclusive]",
+    "routePath: [coords.dolomitiExclusive, coords.vidor, coords.baitaCascate, coords.vidor, coords.dolomitiExclusive, coords.qcSpa, coords.dolomitiExclusive]",
+    "routePath: [coords.dolomitiExclusive, coords.varone, coords.riva, coords.capoReamol, coords.limone, coords.abacusHotel]",
+    "routePath: [coords.abacusHotel, coords.monza, coords.abacusHotel, coords.milan, coords.abacusHotel]",
+    "routePath: [coords.abacusHotel, coords.malpensa]",
+]
+missing_routes = [token for token in route_sentinels if token not in html]
+assert not missing_routes, f"Itinerary route data changed unexpectedly: {missing_routes}"
+
+# Mixed-mode days must explicitly prevent walking/transit legs from becoming driving routes.
+mode_sentinels = [
+    "routeModes: ['DRIVING', 'DRIVING', 'DRIVING', 'DRIVING', 'WALKING', 'WALKING']",
+    "routeModes: ['DRIVING', 'WALKING', 'WALKING', 'DRIVING']",
+    "routeModes: ['DRIVING', 'SHUTTLE', 'SHUTTLE', 'DRIVING', 'WALKING', 'WALKING']",
+    "routeModes: ['DRIVING', 'DRIVING', 'TRANSIT', 'TRANSIT']",
+]
+missing_modes = [token for token in mode_sentinels if token not in html]
+assert not missing_modes, f"Missing mixed-transport route metadata: {missing_modes}"
+
+# Route buttons and map containers need touch-friendly/responsive styling.
+for css_token in [".google-route-button", ".map-actions", "min-height: 44px", "@media (max-width: 760px)"]:
+    assert css_token in html, f"Missing responsive map UI token: {css_token}"
+
+print('Google Maps migration verification passed')
