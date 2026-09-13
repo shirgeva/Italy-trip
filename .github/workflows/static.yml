@@ -1,4 +1,4 @@
-# Simple workflow for deploying static content to GitHub Pages
+# Temporary migration workflow: patches source, verifies it, injects optional Google key, then deploys.
 name: Deploy static content to Pages
 
 on:
@@ -7,7 +7,7 @@ on:
   workflow_dispatch:
 
 permissions:
-  contents: read
+  contents: write
   pages: write
   id-token: write
 
@@ -24,8 +24,35 @@ jobs:
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+      - name: Apply Google Maps migration if needed
+        shell: bash
+        run: |
+          python3 scripts/patch_google_maps_migration.py
+          if git diff --quiet -- index.html; then
+            exit 0
+          fi
+          git config user.name "shirgeva"
+          git config user.email "shirgeva11@gmail.com"
+          git add index.html
+          git commit -m "Prepare Google Maps with Leaflet fallback"
+          git push
       - name: Verify Google Maps migration
         run: python3 scripts/test_google_maps_migration.py
+      - name: Configure Google Maps key for deploy
+        env:
+          GOOGLE_MAPS_API_KEY: ${{ secrets.GOOGLE_MAPS_API_KEY }}
+        shell: bash
+        run: |
+          python3 - <<'PY'
+          import os
+          from pathlib import Path
+          path = Path('index.html')
+          text = path.read_text()
+          key = os.environ.get('GOOGLE_MAPS_API_KEY', '').strip()
+          text = text.replace('__GOOGLE_MAPS_API_KEY__', key)
+          path.write_text(text)
+          print('Google Maps key configured for deploy.' if key else 'No Google Maps key configured; Leaflet fallback remains active.')
+          PY
       - name: Setup Pages
         uses: actions/configure-pages@v5
       - name: Upload artifact
