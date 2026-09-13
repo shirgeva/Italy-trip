@@ -191,6 +191,7 @@ button, input { font: inherit; }
 .status-badge { display: inline-flex; align-items: center; min-height: 23px; padding: 0 8px; border-radius: 999px; font-size: 16px; font-weight: 700; white-space: nowrap; }
 .stop-card-main > .status-badge { position: absolute; left: 15px; top: 16px; }
 .status-booked { background: var(--green-soft); color: var(--green); }
+.status-must { background: var(--green-soft); color: var(--green); }
 .status-to-book { background: var(--red-soft); color: var(--red); }
 .status-considering, .status-planning, .status-optional { background: #EFEAE1; color: #6B655F; }
 details { border-top: 1px solid var(--border); }
@@ -727,6 +728,7 @@ function visibleFields(object) {
 function statusLabel(status) {
   return {
     booked: 'הוזמן',
+    must: 'חובה',
     'to-book': 'להזמין',
     considering: 'בהתלבטות',
     optional: 'אופציונלי',
@@ -824,12 +826,13 @@ const dailyMapRoutes = {
   },
   'day-2': {
     points: [
-      { name: 'Varenna · עדיפות / חובה', label: 'מתחילים כאן · בסיס לינה', ...coords.varenna },
-      { name: 'Bellagio · עדיפות / חובה', label: 'יעד המעבורת המרכזי', ...coords.bellagio },
-      { name: 'Villa Carlotta / Tremezzo · אופציונלי מומלץ', label: 'האטרקציה המרכזית אם רוצים מעבר לשיטוט', ...coords.tremezzo },
-      { name: 'Menaggio · אופציונלי', label: 'עדיפות אחרונה · כ־שעה אם נשאר זמן', ...coords.menaggio },
+      { name: 'Varenna · בסיס / ferry hub', label: 'לינה + רכב + יציאה וחזרה למעבורות', ...coords.varenna },
+      { name: 'Orrido di Bellano · חובה', label: '09:00 · בוקר קבוע', ...coords.bellano },
+      { name: 'Bellagio · חובה', label: 'אחרי החזרה ל־Varenna · זמן גמיש', ...coords.bellagio },
+      { name: 'Menaggio · חובה', label: 'זמן גמיש · לפי המעבורת הבאה', ...coords.menaggio },
+      { name: 'Villa Carlotta / Tremezzo · אופציונלי', label: 'רק אם מתאים בזמן, בחשק ובחיבורי המעבורת', ...coords.tremezzo },
     ],
-    routePath: [coords.varenna, coords.bellagio, coords.tremezzo, coords.menaggio, coords.varenna],
+    routePath: [coords.varenna, coords.bellano, coords.varenna, coords.bellagio, coords.menaggio, coords.varenna],
   },
   'day-3': {
     points: [
@@ -921,7 +924,7 @@ const trip = {
   routeStart: { id: 'trip-start', name: 'Milan Malpensa Airport', ...coords.malpensa },
   routeAnchors: [
     { id: 'day-1-map', dayNumber: 1, href: '#/day/day-1', name: 'Bellano / Lake Como', label: 'יום 1 · 2.10', ...coords.bellano },
-    { id: 'day-2-map', dayNumber: 2, href: '#/day/day-2', name: 'Bellagio', label: 'יום 2 · 3.10', ...coords.bellagio },
+    { id: 'day-2-map', dayNumber: 2, href: '#/day/day-2', name: 'Orrido di Bellano + Bellagio + Menaggio', label: 'יום 2 · 3.10', ...coords.bellano },
     { id: 'day-3-map', dayNumber: 3, href: '#/day/day-3', name: 'Val di Funes / Santa Maddalena', label: 'יום 3 · 4.10', ...coords.santaMaddalena },
     { id: 'day-4-map', dayNumber: 4, href: '#/day/day-4', name: 'Seceda', label: 'יום 4 · 5.10', ...coords.seceda },
     { id: 'day-5-map', dayNumber: 5, href: '#/day/day-5', name: 'Alpe di Siusi', label: 'יום 5 · 6.10', ...coords.alpeSiusi },
@@ -990,65 +993,65 @@ const trip = {
     {
       id: 'day-2', number: 2, date: '2026-10-03',
       startBase: 'Varenna',
-      title: 'Varenna + Bellagio · יום גמיש',
-      overviewPoint: 'Varenna + Bellagio',
+      title: 'Orrido di Bellano + Bellagio + Menaggio',
+      overviewPoint: 'Orrido di Bellano + Bellagio + Menaggio',
       area: 'Lake Como',
-      routeLabel: 'Varenna → Bellagio → Villa Carlotta / Tremezzo → Menaggio → Varenna · מסלול גמיש',
+      routeLabel: 'Varenna → Bellano → Varenna → Lake Como ferries → Bellagio → Menaggio → Varenna',
       overnight: 'Varenna · לילה 2 מתוך 2',
-      drivingTime: 'ללא נהיגה מתוכננת · מעבורות בלבד',
-      walking: 'גמיש לפי הקצב והחשק',
-      highlights: ['Varenna + Bellagio · עדיפות / חובה', 'Villa Carlotta · אופציונלי מומלץ', 'Menaggio · אופציונלי · עדיפות אחרונה'],
+      drivingTime: 'בוקר: 5–10 דק׳ לכל כיוון אם נוסעים ברכב · אחר כך מעבורות',
+      walking: 'Orrido כ־45–60 דק׳ + שיטוט גמיש ב־Bellagio וב־Menaggio',
+      highlights: ['Orrido di Bellano · חובה', 'Bellagio · חובה', 'Menaggio · חובה', 'Villa Carlotta / Tremezzo · אופציונלי'],
       areaOptions: [
         {
-          id: 'villa-monastero',
-          name: 'Villa Monastero',
-          category: 'Varenna · אופציונלי בתשלום',
-          description: 'וילה היסטורית וגנים בוטניים ארוכים על שפת Lake Como. אפשר לשלב אם רוצים אטרקציה בתשלום כבר ב־Varenna.',
+          id: 'orrido-car-option-day2',
+          name: 'Option A — Car',
+          category: 'Orrido di Bellano · אפשרות מועדפת',
+          description: 'הדרך המועדפת לבוקר: נסיעה קצרה מ־Varenna, ביקור עם הפתיחה וחזרה למלון כדי להשאיר את הרכב שם לפני יום המעבורות.',
           details: {
-            openingHours: '3.10.2026 · 10:00–18:00',
-            price: 'כניסה בתשלום',
-            address: 'Viale Giovanni Polvani 4, 23829 Varenna LC, Italy',
-            notes: 'מרכז Varenna, הטיילת והרחובות עצמם חינם. אין צורך במעבורת — אנחנו ישנים ב־Varenna.',
-            website: 'https://www.villamonastero.eu/en/opening-hours-ticket/',
+            address: 'Piazza S. Giorgio, 23822 Bellano LC, Italy',
+            parking: 'לנסות קודם חניה באזור מרכז Bellano / Piazza San Giorgio. אם מלא, להשתמש באזור החניה ליד Bellano-Tartavalle Terme וללכת כ־10 דקות.',
+            price: 'חניה: לבדוק תעריף ושילוט בהגעה — לא מציגים מחיר לא מאומת.',
+            notes: 'יציאה מ־Varenna בערך 08:40–08:45 · נסיעה כ־5–10 דק׳ · יעד חניה סביב 08:50 · אחרי הביקור חוזרים למקום הלינה ב־Varenna ומשאירים שם את הרכב להמשך היום. יעד חזרה משוער: 10:10–10:30.',
+            website: 'https://www.comune.bellano.lc.it/amministrazione/documenti_e_dati/documenti_tecnici_di_supporto/documento_89.html',
           },
         },
         {
-          id: 'villa-melzi-day2',
-          name: 'Villa Melzi Gardens',
-          category: 'Bellagio · אופציונלי בתשלום',
-          description: 'גנים מטופחים על שפת האגם ב־Bellagio. אופציה טובה אם מתחשק לשלב גנים בזמן השיטוט בעיר.',
+          id: 'orrido-train-option-day2',
+          name: 'Option B — Train',
+          category: 'Orrido di Bellano · חלופה',
+          description: 'משאירים את הרכב במקום הלינה ונוסעים ישירות ברכבת Varenna-Esino → Bellano-Tartavalle Terme.',
           details: {
-            price: 'כניסה בתשלום',
-            notes: 'מרכז Bellagio, הרחובות, החנויות והטיילת חינם.',
+            price: 'כ־€2 לאדם לכל כיוון · מחיר משוער בלבד, לבדוק בעת הקנייה',
+            notes: 'הנסיעה עצמה כ־4–7 דקות, ואז כ־10 דקות הליכה ל־Orrido. לבחור רכבת בוקר שמביאה ל־Bellano בזמן להגיע לכניסה לפני 09:00. לא מקבעים רכבת ספציפית עד שלוח 3.10.2026 מאושר. עם כרטיס תחבורה ציבורית תקף מחיר הכניסה ל־Orrido יורד מ־€8 ל־€5 לאדם.',
           },
         },
         {
           id: 'villa-carlotta-day2',
           name: 'Villa Carlotta',
-          category: 'Tremezzo · אופציונלי מומלץ',
-          description: 'וילה היסטורית עם גנים בוטניים גדולים ותצפיות על Lake Como. זו אופציית האטרקציה המרכזית אם רוצים משהו מעבר לשיטוט בעיירות.',
+          category: 'Tremezzo · אופציונלי בלבד',
+          description: 'וילה היסטורית ב־Tremezzo עם גנים בוטניים גדולים ונוף ל־Lake Como. יפה, אבל לא על חשבון Bellagio או Menaggio.',
           details: {
-            openingHours: '3.10.2026 · 10:00–19:00',
-            price: 'כניסה בתשלום',
-            address: 'Via Statale 5605, 22016 Tremezzina CO, Italy',
-            notes: 'מגיעים במעבורת לאזור Tremezzo / Villa Carlotta. אופציונלי אבל מומלץ יותר מ־Menaggio אם צריך לבחור.',
+            openingHours: '3.10.2026 · 10:00–19:00 · כרטיס אחרון 18:00',
+            price: '€17.50 למבוגר',
+            notes: 'מחליטים באותו יום לפי זמן, חיבורי מעבורת, מצב רוח והאם באמת מתחשק לנו ביקור בגנים. אפשר לשלב במקום שנוח לפי לוח המעבורות — אין סדר חובה.',
             website: 'https://www.villacarlotta.it/en/visit/',
           },
         },
       ],
       alerts: [
-        'יום גמיש: Varenna + Bellagio הן העדיפות / חובה. Villa Carlotta אופציונלית אבל מומלצת אם רוצים אטרקציה; Menaggio בעדיפות האחרונה וקל לוותר עליה.',
-        'מעבורות מרכז Lake Como מחברות בין Varenna, Bellagio, Menaggio ואזור Tremezzo / Villa Carlotta. נקנה כרטיסים באותו יום, נגיע בערך 20–30 דקות לפני המעבורת ונחליט לפי הקצב. אם נשארים יותר במקום שאוהבים — פשוט מדלגים על אחת העצירות האופציונליות.',
+        'בוקר קבוע: 09:00 Orrido di Bellano. זו אטרקציית חובה עבורנו כי טבע ומפלים מעניינים אותנו יותר מווילות וגנים.',
+        'אחרי Orrido היום הופך לגמיש: Bellagio חובה · Menaggio חובה · Villa Carlotta / Tremezzo אופציונלי בלבד.',
+        'Varenna היא בסיס / מקום הלינה / חניית הרכב / נקודת יציאה וחזרה למעבורות — לא עצירת sightseeing מתוכננת ביום הזה. נטייל בה בערב יום 1 ובאופן טבעי שוב בערב יום 2.',
+        'אסטרטגיית מעבורות: קונים כרטיסים באותו יום, בודקים את המעבורת הבאה ולא עובדים לפי לו״ז קשיח. כשאפשר מגיעים 20–30 דקות לפני. לבדוק בקופה את המחיר המדויק לכל מסלול וגם האם כרטיס day / free-circulation משתלם יותר מהזמנות בודדות.',
       ],
       stops: [
-        place({ id: 'varenna', name: 'Varenna · עדיפות / חובה', time: 'מתחילים כאן · ללא שעה קבועה', duration: 'גמיש', coordinates: coords.varenna, details: { price: 'מרכז העיירה חינם', notes: 'טיילת על האגם, סמטאות צרות, בתי קפה ונוף. אנחנו ישנים כאן ולכן אין צורך במעבורת כדי להתחיל את היום. Villa Monastero והגנים הם אופציה בתשלום.' } }),
-        place({ id: 'ferry-varenna-bellagio', type: 'ferry', name: 'Varenna → Bellagio', time: 'כשמתאים במהלך היום', duration: 'לפי לוח המעבורות', coordinates: coords.bellagio, details: { notes: 'Bellagio היא יעד המעבורת המרכזי והעצירה השנייה בעדיפות. קונים כרטיסים באותו יום ונשארים גמישים.' } }),
-        place({ id: 'bellagio', name: 'Bellagio · עדיפות / חובה', time: 'ללא שעה קבועה', duration: 'גמיש', coordinates: coords.bellagio, details: { price: 'מרכז העיירה חינם', notes: 'המרכז ההיסטורי, הרחובות המדורגים, חנויות, מסעדות וטיילת על האגם. Villa Melzi Gardens היא אופציה בתשלום.' } }),
-        transfer('ferry-bellagio-tremezzo', 'Bellagio → Tremezzo / Villa Carlotta', 'מעבורת · אופציונלי', 'אם רוצים אטרקציה', { notes: 'המשך אופציונלי. אם רוצים אטרקציה בתשלום מעבר לשיטוט בעיירות, זו הבחירה המומלצת.' }),
-        place({ id: 'villa-carlotta-stop-day2', type: 'attraction', name: 'Villa Carlotta / Tremezzo · אופציונלי מומלץ', time: 'ללא שעה קבועה', duration: 'לפי הקצב', status: 'optional', coordinates: coords.tremezzo, details: { price: 'כניסה בתשלום', notes: 'וילה היסטורית וגנים בוטניים גדולים מול האגם. אם היום מתקדם לאט אפשר לבחור בה ולוותר על Menaggio.' } }),
-        transfer('ferry-tremezzo-menaggio', 'Tremezzo / Villa Carlotta → Menaggio', 'מעבורת · אופציונלי', 'רק אם נשאר זמן', { notes: 'Menaggio היא העצירה בעדיפות האחרונה. אפשר לדלג עליה בלי לפגוע ביום.' }),
-        place({ id: 'menaggio', name: 'Menaggio · אופציונלי · עדיפות אחרונה', time: 'רק אם נשאר זמן וחשק', duration: 'כ־שעה', status: 'optional', coordinates: coords.menaggio, details: { price: 'מרכז העיירה חינם', notes: 'עיירה נעימה עם כיכר מרכזית וטיילת על האגם. מתאימה לעצירה קצרה בלבד.' } }),
-        place({ id: 'return-varenna', type: 'ferry', name: 'חזרה ל־Varenna', nameDirection: 'rtl', time: 'לפי הקצב ולוח המעבורות', status: 'planned', coordinates: coords.varenna, details: { notes: 'אין שעה קשיחה. חוזרים ל־Varenna כשהרגשנו שמיצינו את היום.' } }),
+        place({ id: 'orrido-day2-must', type: 'attraction', name: 'Orrido di Bellano', time: '09:00 · הגעה / כניסה', duration: 'כ־45–60 דקות', status: 'must', coordinates: coords.bellano, details: { openingHours: 'שבת 3.10.2026 · 09:00–19:00 · כניסה אחרונה 20 דקות לפני הסגירה', price: '€8 למבוגר · €5 עם כרטיס תחבורה ציבורית תקף, כולל רכבת או Lake Como navigation', address: 'Piazza S. Giorgio, 23822 Bellano LC, Italy', reservation: 'אין צורך בהזמנה מראש למבקרים יחידים', notes: 'ערוץ טבע דרמטי שנחצב על ידי נהר Pioverna, עם מפלים, קירות סלע צרים, מדרגות ושבילי הליכה מוגבהים.' } }),
+        place({ id: 'return-varenna-after-orrido', type: 'planning', name: 'חזרה ל־Varenna + השארת הרכב', nameDirection: 'rtl', time: '≈10:10–10:30', duration: 'לפי אמצעי ההגעה', status: 'planned', coordinates: coords.varenna, details: { notes: 'ברכב: חוזרים למקום הלינה ומשאירים את הרכב שם להמשך היום. ברכבת: חוזרים מ־Bellano-Tartavalle Terme ל־Varenna-Esino. מכאן מתחיל חלק המעבורות הגמיש.' } }),
+        place({ id: 'varenna-ferry-hub-day2', type: 'ferry', name: 'Varenna · base / ferry hub', time: 'מכאן והלאה', status: 'planned', coordinates: coords.varenna, details: { notes: 'לא מקדישים ל־Varenna בלוק sightseeing ביום הזה. היא משמשת כבסיס לינה, חניית רכב ונקודת יציאה / חזרה למעבורות. זמן פנוי בין פעילויות אפשר כמובן להעביר כאן.' } }),
+        place({ id: 'bellagio-day2-must', name: 'Bellagio', time: 'גמיש · ללא שעה קבועה', duration: 'נשארים כל עוד נהנים', status: 'must', coordinates: coords.bellagio, details: { price: 'מרכז העיירה חינם', notes: 'העיירה הקלאסית והאיקונית ביותר ב־Lake Como: רחובות היסטוריים מדורגים, נוף לאגם, חנויות, בתי קפה, מסעדות וטיילת יפה. מגיעים במעבורת מ־Varenna.' } }),
+        place({ id: 'menaggio-day2-must', name: 'Menaggio', time: 'גמיש · ללא שעה קבועה', duration: 'לפי החשק באותו יום', status: 'must', coordinates: coords.menaggio, details: { price: 'מרכז העיירה חינם', notes: 'עיירת אגם רגועה עם כיכר מרכזית, טיילת, בתי קפה ונוף פתוח על Lake Como. מגיעים במעבורת; לא מקבעים מראש כמה זמן נשארים.' } }),
+        place({ id: 'villa-carlotta-flex-day2', type: 'attraction', name: 'Villa Carlotta / Tremezzo', time: 'אופציונלי · איפה שנוח לפי המעבורות', duration: 'רק אם מתחשק ויש זמן', status: 'optional', coordinates: coords.tremezzo, details: { openingHours: '3.10.2026 · 10:00–19:00 · כרטיס אחרון 18:00', price: '€17.50 למבוגר', notes: 'לא חייבים להגיע בסדר מסוים. מוסיפים רק אם חיבור המעבורת נוח ואם זה לא מקצר את Bellagio או Menaggio.' } }),
+        place({ id: 'return-varenna-day2', type: 'ferry', name: 'חזרה ל־Varenna', nameDirection: 'rtl', time: 'לפי המעבורת והקצב', status: 'planned', coordinates: coords.varenna, details: { notes: 'אין שעת חזרה קשיחה. בוחרים את המעבורת המתאימה אחרי שמיצינו את Bellagio ו־Menaggio.' } }),
       ],
     },
     {
