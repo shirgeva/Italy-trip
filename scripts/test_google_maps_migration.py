@@ -5,6 +5,7 @@ workflow = Path('.github/workflows/static.yml').read_text()
 
 required_html = [
     "__GOOGLE_MAPS_API_KEY__",
+    "const GOOGLE_MAPS_PLACEHOLDER_PREFIX = '__GOOGLE_MAPS_'",
     "function getGoogleMapsApiKey()",
     "function loadGoogleMaps()",
     "async function createGoogleMap(",
@@ -15,6 +16,7 @@ required_html = [
     "פתח מסלול ב-Google Maps",
     "routeModes:",
     "gestureHandling: 'cooperative'",
+    "await google.maps.importLibrary('marker')",
     "enhanceMaps(trip)",
 ]
 missing = [token for token in required_html if token not in html]
@@ -34,6 +36,10 @@ assert "https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" in html
 
 # Never commit a real Google Maps browser key into the public source.
 assert "AIza" not in html
+
+# The placeholder sentinel must not become equal to the injected key at deploy time.
+assert "const GOOGLE_MAPS_PLACEHOLDER = '__GOOGLE_MAPS_API_KEY__'" not in html
+assert "raw === GOOGLE_MAPS_PLACEHOLDER" not in html
 
 # Latest itinerary route decisions must remain unchanged by the map migration.
 route_sentinels = [
