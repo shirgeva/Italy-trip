@@ -27,8 +27,10 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Verify Google Maps migration
-        run: python3 scripts/test_google_maps_migration.py
+      - name: Verify site regressions
+        run: |
+          python3 scripts/test_google_maps_migration.py
+          python3 scripts/test_daily_accommodation_summary.py
 
       - name: Configure Google Maps key for deploy
         env:
