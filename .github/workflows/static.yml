@@ -30,6 +30,7 @@ jobs:
         run: |
           python3 scripts/patch_daily_accommodation_summary.py
           python3 scripts/fix_daily_lodging_mapping.py
+          python3 scripts/remove_stale_day_summary_css.py
           if ! git diff --quiet -- index.html; then
             git config user.name "shirgeva"
             git config user.email "shirgeva11@gmail.com"
