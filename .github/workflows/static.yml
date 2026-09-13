@@ -28,13 +28,14 @@ jobs:
         shell: bash
         run: |
           python3 scripts/patch_google_maps_migration.py
+          python3 scripts/fix_google_maps_activation.py
           if git diff --quiet -- index.html; then
             exit 0
           fi
           git config user.name "shirgeva"
           git config user.email "shirgeva11@gmail.com"
           git add index.html
-          git commit -m "Prepare Google Maps with Leaflet fallback"
+          git commit -m "Fix Google Maps activation and marker loading"
           git push
       - name: Verify Google Maps migration
         run: python3 scripts/test_google_maps_migration.py
