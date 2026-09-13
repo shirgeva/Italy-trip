@@ -2348,15 +2348,15 @@ const INK = '#292826'
 const MAP_MUTED = '#6E6B67'
 const MAP_LOGISTICS = '#77736E'
 const MAP_AIRPORT = '#A86D58'
-const GOOGLE_MAPS_PLACEHOLDER = '__GOOGLE_MAPS_API_KEY__'
-window.ITALY_TRIP_CONFIG = window.ITALY_TRIP_CONFIG || { googleMapsApiKey: GOOGLE_MAPS_PLACEHOLDER }
+const GOOGLE_MAPS_PLACEHOLDER_PREFIX = '__GOOGLE_MAPS_'
+window.ITALY_TRIP_CONFIG = window.ITALY_TRIP_CONFIG || { googleMapsApiKey: '__GOOGLE_MAPS_API_KEY__' }
 
 let leafletLoadPromise = null
 let googleMapsLoadPromise = null
 
 function getGoogleMapsApiKey() {
   const raw = String(window.ITALY_TRIP_CONFIG?.googleMapsApiKey ?? '').trim()
-  if (!raw || raw === GOOGLE_MAPS_PLACEHOLDER || raw.includes('__GOOGLE_MAPS_API_KEY__')) return ''
+  if (!raw || raw.startsWith(GOOGLE_MAPS_PLACEHOLDER_PREFIX)) return ''
   return raw
 }
 
@@ -2643,6 +2643,7 @@ async function addGoogleRouteGroup(map, group, compact = false) {
 async function createGoogleMap(element, points, { kind = 'day', compact = false, routeStart = null, routePath = null, routeModes = [], day = null } = {}) {
   await loadGoogleMaps()
   const { Map } = await google.maps.importLibrary('maps')
+  await google.maps.importLibrary('marker')
   const first = points[0] ?? routePath?.[0] ?? routeStart ?? { lat: 46.1, lng: 11.2 }
   element.innerHTML = ''
   const map = new Map(element, {
