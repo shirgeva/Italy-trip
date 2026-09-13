@@ -15,7 +15,7 @@ assert "id: 'loacker-olang'" not in day6.group(1), 'October 7 Loacker optional s
 day3 = re.search(r"\{\n\s+id: 'day-3', number: 3, date: '2026-10-04',(.*?)\n\s+\},\n\s+\{\n\s+id: 'day-4'", html, flags=re.S)
 assert day3, 'Day 3 block not found'
 for token in [
-    "Loacker Café Bozen Twenty · אופציונלי",
+    "name: 'Loacker Café Bozen Twenty'",
     "id: 'loacker-twenty'",
     "drive-elena-loacker",
     "drive-loacker-funes",
