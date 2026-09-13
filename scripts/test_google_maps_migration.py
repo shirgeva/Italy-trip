@@ -1,4 +1,7 @@
 from pathlib import Path
+import re
+import subprocess
+import tempfile
 
 html = Path('index.html').read_text()
 workflow = Path('.github/workflows/static.yml').read_text()
@@ -64,8 +67,21 @@ mode_sentinels = [
 missing_modes = [token for token in mode_sentinels if token not in html]
 assert not missing_modes, f"Missing mixed-transport route metadata: {missing_modes}"
 
+# Every daily map has route-mode metadata, so map rendering and external navigation share one route source.
+daily_routes_block = html.split("const dailyMapRoutes = {", 1)[1].split("const trip = {", 1)[0]
+assert daily_routes_block.count("routePath:") == 11, "Expected routePath for all 11 days"
+assert daily_routes_block.count("routeModes:") == 11, "Expected routeModes for all 11 days"
+
 # Route buttons and map containers need touch-friendly/responsive styling.
 for css_token in [".google-route-button", ".map-actions", "min-height: 44px", "@media (max-width: 760px)"]:
     assert css_token in html, f"Missing responsive map UI token: {css_token}"
+
+# Parse-check all inline JavaScript so a malformed map migration cannot be deployed.
+inline_scripts = re.findall(r"<script(?:\s[^>]*)?>(.*?)</script>", html, flags=re.S | re.I)
+assert inline_scripts, "No inline JavaScript found"
+with tempfile.NamedTemporaryFile("w", suffix=".js", delete=False) as tmp:
+    tmp.write("\n".join(inline_scripts))
+    js_path = tmp.name
+subprocess.run(["node", "--check", js_path], check=True)
 
 print('Google Maps migration verification passed')
