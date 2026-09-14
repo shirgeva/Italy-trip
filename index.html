@@ -479,10 +479,8 @@ details[open] summary > span { transform: rotate(45deg); }
 /* Day navigation tabs */
 .day-tabs { display: flex; flex-wrap: wrap; gap: 8px; margin: 14px 0 22px; }
 .day-tab { min-height: 42px; display: inline-flex; align-items: center; justify-content: center; padding: 8px 14px; border: 1px solid var(--border); border-radius: 999px; background: var(--surface); color: var(--muted); font-size: 16px; font-weight: 650; transition: .2s ease; }
-.day-tab:nth-child(4n + 1), .day-tab:nth-child(4n + 2) { background: #F3E8DC; border-color: #DFCDBC; color: #5F5954; }
-.day-tab:nth-child(4n + 3), .day-tab:nth-child(4n + 4) { background: #E1ECE4; border-color: #C9D9CE; color: #536058; }
-.day-tab:hover { border-color: #CFC7BE; color: var(--ink); filter: brightness(.985); }
-.day-tab.is-active { background: var(--green); border-color: var(--green); color: #fff; filter: none; }
+.day-tab:hover { border-color: #D7D3CE; background: var(--surface-2); color: var(--ink); }
+.day-tab.is-active { background: #466653; border-color: #466653; color: #fff; }
 .map-route-item { text-decoration: none; }
 .map-popup a { display: inline-block; margin-top: 7px; color: var(--green); font-size: 16px; font-weight: 700; }
 
@@ -632,8 +630,8 @@ body, html, :root { background: #FFFFFF; }
 .map-canvas { background: #F6F6F4; }
 .map-heading { background: rgba(255,255,255,.96); }
 
-/* Slightly quieter accent for active controls. */
-.day-tab.is-active { background: #9A5B4A; border-color: #9A5B4A; }
+/* Active day tab uses the existing deep site green. */
+.day-tab.is-active { background: #466653; border-color: #466653; color: #fff; }
 
 
 /* AREA OPTIONS · optional places per day */
