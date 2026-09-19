@@ -11,16 +11,26 @@ assert day6, 'Day 6 / October 7 block not found'
 assert 'Loacker' not in day6.group(1), 'Loacker still appears on October 7'
 assert "id: 'loacker-olang'" not in day6.group(1), 'October 7 Loacker optional stop still exists'
 
-# Day 3 Loacker plan must remain untouched.
+# Day 3 now uses Bolzano center + Ritten Cable Car + Loacker Piazza Walther.
 day3 = re.search(r"\{\n\s+id: 'day-3', number: 3, date: '2026-10-04',(.*?)\n\s+\},\n\s+\{\n\s+id: 'day-4'", html, flags=re.S)
 assert day3, 'Day 3 block not found'
+d3 = day3.group(1)
 for token in [
-    "name: 'Loacker Café Bozen Twenty'",
-    "id: 'loacker-twenty'",
-    "drive-elena-loacker",
-    "drive-loacker-funes",
+    "title: 'Bellano → Bolzano → Val di Funes → Bressanone'",
+    "Ritten Cable Car · Bolzano → Soprabolzano",
+    "Loacker Café Bolzano – Piazza Walther",
+    "id: 'loacker-walther-day3'",
+    "RiBo Parking Garage",
+    "Val di Funes / Santa Maddalena",
 ]:
-    assert token in day3.group(1), f'Day 3 Loacker content changed or missing: {token}'
+    assert token in d3, f'Day 3 Bolzano content changed or missing: {token}'
+for removed in [
+    "Elena Walch",
+    "Loacker Café Bozen Twenty",
+    "Twenty Shopping Center",
+    "id: 'loacker-twenty'",
+]:
+    assert removed not in d3, f'Old Day 3 content unexpectedly returned: {removed}'
 
 # Every Lago di Carezza option in the itinerary must clearly be conditional/optional
 # and display the requested warning text with an attention icon.
