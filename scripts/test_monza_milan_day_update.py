@@ -6,7 +6,7 @@ import tempfile
 html = Path('index.html').read_text()
 
 # Day 10 map must follow:
-# hotel -> Starbucks -> Primark -> Spùn -> Venchi -> Ferrari -> hotel -> Monza -> hotel
+# hotel -> Starbucks -> Primark -> Spùn -> Venchi -> Ferrari -> UNIQLO -> hotel -> Monza -> hotel
 # -> cooking class -> Gelateria Umberto -> central Milan -> hotel.
 map_block = re.search(r"'day-10': \{(.*?)\n  \},\n  'day-11':", html, flags=re.S)
 assert map_block, 'Day 10 map block not found'
@@ -17,11 +17,12 @@ for token in [
     "Spùn Tiramisù – Duomo",
     "Venchi Milano Mengoni",
     "Ferrari Flagship Store Milano",
+    "UNIQLO Piazza Cordusio",
     "Autodromo Nazionale Monza",
     "Milano: Handmade Pasta & Iconic Dessert Making Class",
-    "Gelateria Umberto 1934 Milano",
-    "routePath: [coords.abacusHotel, coords.starbucksRoastery, coords.primarkTorino, coords.spunDuomo, coords.venchiMengoni, coords.ferrariMilano, coords.abacusHotel, coords.monza, coords.abacusHotel, coords.cookingClassMilan, coords.gelateriaUmberto, coords.milan, coords.abacusHotel]",
-    "routeModes: ['TRANSIT', 'WALKING', 'WALKING', 'WALKING', 'WALKING', 'TRANSIT', 'DRIVING', 'DRIVING', 'TRANSIT', 'WALKING', 'WALKING', 'TRANSIT']",
+    "Gelateria Umberto 1934 – affogato",
+    "routePath: [coords.abacusHotel, coords.starbucksRoastery, coords.primarkTorino, coords.spunDuomo, coords.venchiMengoni, coords.ferrariMilano, coords.uniqloCordusio, coords.abacusHotel, coords.monza, coords.abacusHotel, coords.cookingClassMilan, coords.gelateriaUmberto, coords.milan, coords.abacusHotel]",
+    "routeModes: ['TRANSIT', 'WALKING', 'WALKING', 'WALKING', 'WALKING', 'WALKING', 'TRANSIT', 'DRIVING', 'DRIVING', 'TRANSIT', 'WALKING', 'WALKING', 'TRANSIT']",
 ]:
     assert token in m, f'Missing Day 10 map token: {token}'
 
@@ -33,6 +34,7 @@ for token in [
     "cookingClassMilan: { lat: 45.46486, lng: 9.20698 }",
     "spunDuomo: { lat: 45.4637229, lng: 9.1872327 }",
     "venchiMengoni:",
+    "uniqloCordusio:",
     "gelateriaUmberto: { lat: 45.4618935, lng: 9.2065548 }",
 ]:
     assert token in html, f'Missing coordinate token: {token}'
@@ -48,14 +50,17 @@ assert "routeLabel: 'Morning shopping in Milan · Monza races · Cooking class �
 for token in [
     "≈07:50–08:00",
     "Starbucks Reserve Roastery Milano",
-    "08:30",
+    "08:30–08:55",
     "Primark Milano – Via Torino",
-    "Via Torino · שופינג בדרך",
+    "≈09:05–09:55",
     "Spùn Tiramisù – Duomo",
     "Via Victor Hugo 3, 20123 Milano",
     "Venchi Milano Mengoni",
     "Via Giuseppe Mengoni 1, 20121 Milano",
     "Ferrari Flagship Store Milano",
+    "UNIQLO Piazza Cordusio",
+    "Via Cordusio 2, 20123 Milano MI, Italy",
+    "≈10:50–11:15",
     "13:40",
     "E4 Championship",
     "14:50",
@@ -67,9 +72,8 @@ for token in [
     "18:30–21:00",
     "Cook & Walk Srl",
     "Viale Premuda 13, 20129 Milano MI, Italy",
-    "Gelateria Umberto 1934 Milano",
-    "affogato",
-    "אם עוד לא היינו כאן בערב הקודם",
+    "Gelateria Umberto 1934 – affogato",
+    "אם לא היינו כאן כבר בערב של 10.10",
     "Milan · ערב אחרון",
     "הלו״ז הרשמי עדיין מוגדר provisional",
 ]:
@@ -80,8 +84,14 @@ for fixed_option_id in [
     "id: 'venchi-mengoni'",
     "id: 'spun-tiramisu-duomo'",
     "id: 'gelateria-umberto'",
+    "id: 'uniqlo-cordusio'",
 ]:
     assert fixed_option_id not in d, f'Fixed Day 10 stop still duplicated in area options: {fixed_option_id}'
+
+# UNIQLO is a planned timeline stop, not an area option, and the flexible-morning note is preserved.
+assert "id: 'uniqlo-cordusio-morning'" in d
+assert "status: 'planned'" in d
+assert "Morning Milan route is flexible — if we already visited some of these places on the evening of 10.10, simply skip those stops and continue with the remaining route." in d
 
 # Lindt and Enrico Rizzi remain area options only.
 for option_id in ["id: 'lindt-via-dante'", "id: 'enrico-rizzi-factory'"]:
