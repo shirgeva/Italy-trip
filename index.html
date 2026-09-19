@@ -1008,7 +1008,7 @@ const dailyMapRoutes = {
       { name: 'Abacus Hotel · Sesto San Giovanni', label: 'בוקר · יוצאים ל־M1', ...coords.abacusHotel },
       { name: 'Milan center · Duomo / Brera', label: '≈09:00–11:15 · אוכל / קפה / שופינג / טיול קל', ...coords.milan },
       { name: 'Abacus Hotel · Sesto San Giovanni', label: '≈12:00 · חוזרים ולוקחים את הרכב', ...coords.abacusHotel },
-      { name: 'Autodromo Nazionale Monza', label: '13:40 E4 · 14:50 GT Cup', ...coords.monza },
+      { name: 'Autodromo Nazionale Monza', label: '13:40 E4 · 14:50 GT3', ...coords.monza },
       { name: 'Abacus Hotel · Sesto San Giovanni', label: 'אחרי המרוצים · מחזירים את הרכב ל־garage', ...coords.abacusHotel },
       { name: 'Milan center · Duomo / Brera', label: 'ערב אחרון · אוכל / שופינג / אווירה', ...coords.milan },
       { name: 'Abacus Hotel · Sesto San Giovanni', label: 'חזרה מאוחרת · לילה 2 מתוך 2', ...coords.abacusHotel },
@@ -1552,7 +1552,7 @@ const trip = {
       overnight: 'Abacus Hotel · Sesto San Giovanni · לילה 2 מתוך 2',
       drivingTime: 'Monza: כ־30–50 דקות לכל כיוון ביום אירוע · Milan במטרו M1 בבוקר ובערב',
       walking: 'מרכז Milan + הליכה במסלול / חניה ב־Monza',
-      highlights: ['Milan · בוקר רגוע', 'E4 Championship · 13:40', 'C.I. Gran Turismo Sprint GT Cup · 14:50', 'Milan · ערב אחרון'],
+      highlights: ['Milan · בוקר רגוע', 'E4 Championship · 13:40', 'Italian GT Sprint GT3 · 14:50', 'Milan · ערב אחרון'],
       areaOptions: [
         {
           id: 'venchi-mengoni',
@@ -1735,7 +1735,7 @@ const trip = {
         },
       ],
       alerts: [
-        'לפי הלו״ז הזמני שאנחנו עובדים לפיו כרגע: E4 Championship ב־13:40 ו־C.I. Gran Turismo Sprint GT Cup ב־14:50. הלו״ז הרשמי עדיין מוגדר provisional ולכן בודקים שוב סמוך לאירוע.',
+        'לפי הלו״ז הזמני שאנחנו עובדים לפיו כרגע: E4 Championship ב־13:40 ו־Italian GT Sprint GT3 ב־14:50. הלו״ז הרשמי עדיין מוגדר provisional ולכן בודקים שוב סמוך לאירוע.',
         'לא נוסעים עם הרכב למרכז Milan: בבוקר ובערב משאירים אותו ב־garage של Abacus Hotel ונוסעים ב־M1 מ־Sesto 1° Maggio FS.',
       ],
       stops: [
@@ -1745,7 +1745,7 @@ const trip = {
         transfer('metro-milan-sesto-before-monza', 'Milan center → Sesto 1° Maggio FS → Abacus Hotel', 'כ־30–35 דקות', '≈11:15–12:00', { notes: 'חוזרים למלון כדי לקחת את הרכב לפני Monza.' }),
         place({ id: 'abacus-car-pickup-monza', type: 'hotel', name: 'Abacus Hotel · לוקחים את הרכב', time: '≈12:00–12:10', status: 'booked', coordinates: coords.abacusHotel, details: { parking: 'Garage כלול בהזמנה', notes: 'יציאה ל־Autodromo עם buffer לחניה ולהליכה לכניסה.' } }),
         drive('drive-abacus-monza', 'Abacus Hotel → Autodromo Nazionale Monza', 'כ־30–50 דקות ביום אירוע', '≈12:10–≈13:00', { notes: 'המלון נמצא כ־9 ק״מ מה־Autodromo. שומרים buffer לתנועת אירוע, חניה והליכה כדי לא להגיע בלחץ למרוץ של 13:40.' }),
-        place({ id: 'monza-event', type: 'activity', name: 'ACI Racing Weekend 2 · Autodromo Nazionale Monza', time: '≈13:00–15:40', duration: 'שני המרוצים שבחרנו', status: 'planning', coordinates: coords.monza, details: { reservation: 'כרטיסים / חניה עדיין במעקב', notes: '13:40 · E4 Championship. 14:50 · C.I. Gran Turismo Sprint GT Cup. נשארים רק לשני המרוצים שמעניינים אותנו ולא לכל יום האירוע. התוכנית עדיין provisional ויש לבדוק שוב סמוך ל־11.10.', website: 'https://www.acisport.it/en/ACI-SPORT/home' } }),
+        place({ id: 'monza-event', type: 'activity', name: 'ACI Racing Weekend 2 · Autodromo Nazionale Monza', time: '≈13:00–15:40', duration: 'שני המרוצים שבחרנו', status: 'planning', coordinates: coords.monza, details: { reservation: 'כרטיסים / חניה עדיין במעקב', notes: '13:40 · E4 Championship. 14:50 · Italian GT Sprint GT3. נשארים רק לשני המרוצים שמעניינים אותנו ולא לכל יום האירוע. התוכנית עדיין provisional ויש לבדוק שוב סמוך ל־11.10.', website: 'https://www.acisport.it/en/ACI-SPORT/home' } }),
         drive('drive-monza-abacus', 'Autodromo Nazionale Monza → Abacus Hotel', 'כ־30–50 דקות ביום אירוע', 'אחרי המרוץ השני · ≈15:40–16:30/16:45', { notes: 'לוקחים בחשבון גם יציאה מהחניון ותנועת סוף אירוע. חוזרים למלון ומחזירים את הרכב ל־garage.' }),
         place({ id: 'abacus-before-milan', type: 'hotel', name: 'Abacus Hotel · מחזירים את הרכב', time: '≈16:30–17:00', status: 'booked', coordinates: coords.abacusHotel, details: { parking: 'Garage כלול בהזמנה', notes: 'מכאן ממשיכים שוב למרכז Milan בלי הרכב.' } }),
         transfer('metro-sesto-milan-evening', 'Sesto 1° Maggio FS → Milan center / Duomo', 'כ־25–30 דקות', '≈17:00–17:30', { notes: 'M1 ישיר למרכז.' }),
