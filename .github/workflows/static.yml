@@ -33,6 +33,7 @@ jobs:
           python3 scripts/test_daily_accommodation_summary.py
           python3 scripts/test_carezza_loacker_update.py
           python3 scripts/test_day_tabs_visual_reset.py
+          python3 scripts/test_monza_milan_day_update.py
 
       - name: Configure Google Maps key for deploy
         env:
