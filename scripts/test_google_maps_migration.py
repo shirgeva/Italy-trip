@@ -46,6 +46,7 @@ assert "raw === GOOGLE_MAPS_PLACEHOLDER" not in html
 
 # Latest itinerary route decisions must remain unchanged by the map migration.
 route_sentinels = [
+    "routePath: [coords.caDelLasco, coords.rittenBolzano, coords.soprabolzano, coords.rittenBolzano, coords.bolzanoWalther, coords.rittenBolzano, coords.santaMaddalena, coords.echoBressanone]",
     "routePath: [coords.echoBressanone, coords.alpeSiusi, coords.passoGardena, coords.postResidence]",
     "routePath: [coords.postResidence, coords.treCime, coords.misurina, coords.braies, coords.postResidence, coords.sanCandido, coords.postResidence]",
     "routePath: [coords.postResidence, coords.passoSella, coords.friedrichAugust, coords.passoSella, coords.dolomitiExclusive]",
@@ -59,6 +60,7 @@ assert not missing_routes, f"Itinerary route data changed unexpectedly: {missing
 
 # Mixed-mode days must explicitly prevent walking/transit legs from becoming driving routes.
 mode_sentinels = [
+    "routeModes: ['DRIVING', 'CABLE', 'CABLE', 'WALKING', 'WALKING', 'DRIVING', 'DRIVING']",
     "routeModes: ['DRIVING', 'DRIVING', 'DRIVING', 'DRIVING', 'WALKING', 'WALKING']",
     "routeModes: ['DRIVING', 'WALKING', 'WALKING', 'DRIVING']",
     "routeModes: ['DRIVING', 'SHUTTLE', 'SHUTTLE', 'DRIVING', 'WALKING', 'WALKING']",
