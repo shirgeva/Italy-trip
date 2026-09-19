@@ -51,7 +51,7 @@ route_sentinels = [
     "routePath: [coords.postResidence, coords.passoSella, coords.friedrichAugust, coords.passoSella, coords.dolomitiExclusive]",
     "routePath: [coords.dolomitiExclusive, coords.vidor, coords.baitaCascate, coords.vidor, coords.dolomitiExclusive, coords.qcSpa, coords.dolomitiExclusive]",
     "routePath: [coords.dolomitiExclusive, coords.varone, coords.riva, coords.capoReamol, coords.limone, coords.abacusHotel]",
-    "routePath: [coords.abacusHotel, coords.monza, coords.abacusHotel, coords.milan, coords.abacusHotel]",
+    "routePath: [coords.abacusHotel, coords.milan, coords.abacusHotel, coords.monza, coords.abacusHotel, coords.milan, coords.abacusHotel]",
     "routePath: [coords.abacusHotel, coords.malpensa]",
 ]
 missing_routes = [token for token in route_sentinels if token not in html]
@@ -62,7 +62,7 @@ mode_sentinels = [
     "routeModes: ['DRIVING', 'DRIVING', 'DRIVING', 'DRIVING', 'WALKING', 'WALKING']",
     "routeModes: ['DRIVING', 'WALKING', 'WALKING', 'DRIVING']",
     "routeModes: ['DRIVING', 'SHUTTLE', 'SHUTTLE', 'DRIVING', 'WALKING', 'WALKING']",
-    "routeModes: ['DRIVING', 'DRIVING', 'TRANSIT', 'TRANSIT']",
+    "routeModes: ['TRANSIT', 'TRANSIT', 'DRIVING', 'DRIVING', 'TRANSIT', 'TRANSIT']",
 ]
 missing_modes = [token for token in mode_sentinels if token not in html]
 assert not missing_modes, f"Missing mixed-transport route metadata: {missing_modes}"
