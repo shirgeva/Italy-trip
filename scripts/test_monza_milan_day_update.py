@@ -43,8 +43,8 @@ for token in [
 day10 = re.search(r"\{\n\s+id: 'day-10', number: 10, date: '2026-10-11',(.*?)\n\s+\},\n\s+\{\n\s+id: 'day-11'", html, flags=re.S)
 assert day10, 'Day 10 itinerary block not found'
 d = day10.group(1)
-assert "title: 'Milan (shopping) → Monza → Milan'" in d
-assert "routeLabel: 'Morning shopping in Milan · Monza races · Cooking class · Final evening in Milan'" in d
+assert "title: 'Milan (שופינג) → Monza → Milan'" in d
+assert "routeLabel: 'שופינג בבוקר ב־Milan · מרוצים ב־Monza · סדנת בישול · ערב אחרון ב־Milan'" in d
 
 # Detailed timeline remains the source of truth.
 for token in [
@@ -75,7 +75,7 @@ for token in [
     "Gelateria Umberto 1934 – affogato",
     "אם לא היינו כאן כבר בערב של 10.10",
     "Milan · ערב אחרון",
-    "הלו״ז הרשמי עדיין מוגדר provisional",
+    "הלו״ז הרשמי עדיין זמני",
 ]:
     assert token in d, f'Missing Day 10 itinerary token: {token}'
 
@@ -91,7 +91,7 @@ for fixed_option_id in [
 # UNIQLO is a planned timeline stop, not an area option, and the flexible-morning note is preserved.
 assert "id: 'uniqlo-cordusio-morning'" in d
 assert "status: 'planned'" in d
-assert "Morning Milan route is flexible — if we already visited some of these places on the evening of 10.10, simply skip those stops and continue with the remaining route." in d
+assert "מסלול הבוקר ב־Milan גמיש — אם כבר ביקרנו בחלק מהמקומות בערב 10.10, פשוט מדלגים עליהם וממשיכים עם שאר המסלול." in d
 
 # Lindt and Enrico Rizzi remain area options only.
 for option_id in ["id: 'lindt-via-dante'", "id: 'enrico-rizzi-factory'"]:
