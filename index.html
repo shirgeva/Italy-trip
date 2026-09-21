@@ -107,6 +107,85 @@ button, input { font: inherit; }
 .flight-countdown-unit span { display: block; margin-top: 5px; color: var(--muted); font-size: 16px; direction: rtl; }
 .flight-countdown.is-departed { justify-content: center; text-align: center; }
 .flight-countdown.is-departed .flight-countdown-units { display: none; }
+
+/* Live trip weather · Open-Meteo */
+.trip-weather-section { margin-top: 28px; }
+.weather-section-heading { align-items: end; margin-bottom: 12px; }
+.weather-section-heading p { margin: 4px 0 0; color: var(--muted); font-size: 16px; }
+.weather-updated { color: var(--muted); font-size: 14px; white-space: nowrap; }
+.weather-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px; }
+.weather-card {
+  min-width: 0;
+  min-height: 158px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 13px 14px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 15px;
+  box-shadow: 0 5px 18px rgba(32,31,29,.035);
+  scroll-snap-align: start;
+}
+.weather-card:hover { background: var(--surface-soft); }
+.weather-card-top { display: flex; align-items: start; justify-content: space-between; gap: 8px; }
+.weather-card-date { color: var(--green); font-size: 15px; font-weight: 700; direction: ltr; }
+.weather-card-location { min-width: 0; color: var(--muted); font-size: 14px; line-height: 1.3; text-align: left; direction: ltr; unicode-bidi: isolate; }
+.weather-condition { display: flex; align-items: center; gap: 8px; }
+.weather-icon { font-size: 24px; line-height: 1; }
+.weather-label { font-size: 15px; font-weight: 650; }
+.weather-temperature { display: flex; align-items: baseline; gap: 7px; }
+.weather-temperature strong { font-size: 20px; font-variant-numeric: tabular-nums; direction: ltr; }
+.weather-temperature small { color: var(--muted); font-size: 12px; }
+.weather-facts { display: flex; flex-wrap: wrap; gap: 5px 9px; color: var(--muted); font-size: 13px; line-height: 1.4; }
+.weather-card-note { margin-top: auto; color: var(--muted); font-size: 12px; line-height: 1.35; }
+.weather-empty { margin: auto 0; color: var(--muted); font-size: 14px; line-height: 1.45; }
+.weather-empty strong { display: block; margin-bottom: 2px; color: var(--ink); font-size: 15px; }
+.weather-skeleton { display: block; height: 10px; border-radius: 999px; background: #EEECE9; animation: weatherPulse 1.35s ease-in-out infinite; }
+.weather-skeleton.wide { width: 78%; height: 13px; }
+.weather-skeleton.medium { width: 58%; }
+.weather-skeleton.short { width: 42%; }
+@keyframes weatherPulse { 0%,100% { opacity: .55; } 50% { opacity: 1; } }
+
+.day-weather-summary {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 14px;
+  margin-top: 10px;
+  padding: 12px 16px;
+  background: var(--surface-soft);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+}
+.day-weather-copy { min-width: 0; }
+.day-weather-title { display: block; margin-bottom: 3px; color: var(--muted); font-size: 14px; }
+.day-weather-main { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 10px; }
+.day-weather-main strong { font-size: 17px; }
+.day-weather-main span { color: var(--muted); font-size: 14px; }
+.day-weather-icon { font-size: 21px; }
+.day-weather-note { display: block; margin-top: 5px; color: var(--muted); font-size: 13px; line-height: 1.4; }
+.day-weather-status { color: var(--muted); font-size: 13px; text-align: left; }
+@media (max-width: 980px) {
+  .weather-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+}
+@media (max-width: 720px) {
+  .trip-weather-section { margin-top: 24px; }
+  .weather-section-heading { align-items: start; }
+  .weather-updated { white-space: normal; text-align: left; }
+  .weather-grid {
+    display: flex;
+    gap: 9px;
+    overflow-x: auto;
+    padding: 2px 2px 8px;
+    margin-inline: -2px;
+    scroll-snap-type: x proximity;
+    scrollbar-width: thin;
+  }
+  .weather-card { flex: 0 0 172px; min-height: 154px; }
+  .day-weather-summary { grid-template-columns: 1fr; gap: 5px; padding: 11px 14px; }
+  .day-weather-status { text-align: right; }
+}
 .overview-meta { display: flex; flex-wrap: wrap; gap: 7px; margin-top: 20px; }
 .overview-meta span { padding: 7px 10px; border: 1px solid var(--border); border-radius: 999px; color: #625E58; background: var(--cream); font-size: 16px; }
 .mini-map-shell, .map-card, .full-map-card { background: var(--surface-2); border: 1px solid var(--border); border-radius: 16px; overflow: hidden; }
@@ -1836,6 +1915,308 @@ const trip = {
 }
 
 
+const WEATHER_REFRESH_MS = 30 * 60 * 1000
+const WEATHER_DAILY_FIELDS = [
+  'weather_code',
+  'temperature_2m_max',
+  'temperature_2m_min',
+  'precipitation_probability_max',
+  'precipitation_sum',
+  'snowfall_sum',
+  'wind_speed_10m_max',
+]
+
+const weatherLocations = [
+  { dayId: 'day-1', date: '2026-10-02', name: 'Bellano / Lake Como', coordinates: coords.bellano },
+  { dayId: 'day-2', date: '2026-10-03', name: 'Lake Como / Varenna', coordinates: coords.varenna },
+  { dayId: 'day-3', date: '2026-10-04', name: 'Val di Funes / Santa Maddalena', coordinates: coords.santaMaddalena },
+  { dayId: 'day-4', date: '2026-10-05', name: 'Seceda', coordinates: coords.seceda },
+  { dayId: 'day-5', date: '2026-10-06', name: 'Alpe di Siusi / Compatsch', coordinates: coords.alpeSiusi },
+  { dayId: 'day-6', date: '2026-10-07', name: 'Tre Cime di Lavaredo', coordinates: coords.treCime },
+  { dayId: 'day-7', date: '2026-10-08', name: 'Passo Sella', coordinates: coords.passoSella },
+  { dayId: 'day-8', date: '2026-10-09', name: 'Val San Nicolò', coordinates: coords.baitaCascate },
+  { dayId: 'day-9', date: '2026-10-10', name: 'Riva del Garda', coordinates: coords.riva },
+  { dayId: 'day-10', date: '2026-10-11', name: 'Milan', coordinates: coords.milan },
+  { dayId: 'day-11', date: '2026-10-12', name: 'Milan Malpensa', coordinates: coords.malpensa },
+]
+
+const weatherState = {
+  status: 'idle',
+  byDay: {},
+  fetchedAt: null,
+  refreshError: false,
+  request: null,
+}
+
+let weatherRefreshTimer = null
+
+function weatherLocationForDay(dayId) {
+  return weatherLocations.find((item) => item.dayId === dayId) || null
+}
+
+function tripTodayIso() {
+  const parts = new Intl.DateTimeFormat('en-GB', {
+    timeZone: 'Europe/Rome',
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+  }).formatToParts(new Date())
+  const values = Object.fromEntries(parts.map((part) => [part.type, part.value]))
+  return values.year + '-' + values.month + '-' + values.day
+}
+
+function calendarDaysBetween(fromIso, toIso) {
+  const from = fromIso.split('-').map(Number)
+  const to = toIso.split('-').map(Number)
+  const fromUtc = Date.UTC(from[0], from[1] - 1, from[2])
+  const toUtc = Date.UTC(to[0], to[1] - 1, to[2])
+  return Math.round((toUtc - fromUtc) / 86400000)
+}
+
+function wmoWeather(code) {
+  const value = Number(code)
+  if (value === 0) return { icon: '☀️', label: 'בהיר' }
+  if (value === 1) return { icon: '🌤️', label: 'בהיר ברובו' }
+  if (value === 2) return { icon: '⛅', label: 'מעונן חלקית' }
+  if (value === 3) return { icon: '☁️', label: 'מעונן' }
+  if ([45, 48].includes(value)) return { icon: '🌫️', label: 'ערפל' }
+  if ([51, 53, 55, 56, 57].includes(value)) return { icon: '🌦️', label: 'טפטוף' }
+  if ([61, 63, 65, 66, 67].includes(value)) return { icon: '🌧️', label: 'גשם' }
+  if ([71, 73, 75, 77].includes(value)) return { icon: '🌨️', label: 'שלג' }
+  if ([80, 81, 82].includes(value)) return { icon: '🌦️', label: 'ממטרים' }
+  if ([85, 86].includes(value)) return { icon: '🌨️', label: 'ממטרי שלג' }
+  if ([95, 96, 99].includes(value)) return { icon: '⛈️', label: 'סופת רעמים' }
+  return { icon: '🌡️', label: 'מזג אוויר' }
+}
+
+function finiteWeatherNumber(value) {
+  const number = Number(value)
+  return Number.isFinite(number) ? number : null
+}
+
+function weatherDayFromDaily(daily, index) {
+  return {
+    date: daily.time[index],
+    weatherCode: finiteWeatherNumber(daily.weather_code && daily.weather_code[index]),
+    max: finiteWeatherNumber(daily.temperature_2m_max && daily.temperature_2m_max[index]),
+    min: finiteWeatherNumber(daily.temperature_2m_min && daily.temperature_2m_min[index]),
+    rainProbability: finiteWeatherNumber(daily.precipitation_probability_max && daily.precipitation_probability_max[index]),
+    precipitation: finiteWeatherNumber(daily.precipitation_sum && daily.precipitation_sum[index]),
+    snowfall: finiteWeatherNumber(daily.snowfall_sum && daily.snowfall_sum[index]),
+    wind: finiteWeatherNumber(daily.wind_speed_10m_max && daily.wind_speed_10m_max[index]),
+  }
+}
+
+function weatherApiUrl() {
+  const params = new URLSearchParams({
+    latitude: weatherLocations.map((item) => item.coordinates.lat).join(','),
+    longitude: weatherLocations.map((item) => item.coordinates.lng).join(','),
+    daily: WEATHER_DAILY_FIELDS.join(','),
+    forecast_days: '16',
+    timezone: 'auto',
+    temperature_unit: 'celsius',
+    wind_speed_unit: 'kmh',
+    precipitation_unit: 'mm',
+  })
+  return 'https://api.open-meteo.com/v1/forecast?' + params.toString()
+}
+
+async function fetchTripWeather() {
+  const response = await fetch(weatherApiUrl(), { cache: 'no-store' })
+  if (!response.ok) throw new Error('Open-Meteo request failed: ' + response.status)
+  const payload = await response.json()
+  const results = Array.isArray(payload) ? payload : [payload]
+  if (results.length !== weatherLocations.length) throw new Error('Open-Meteo returned an unexpected location count')
+
+  const byDay = {}
+  weatherLocations.forEach((location, locationIndex) => {
+    const daily = results[locationIndex] && results[locationIndex].daily
+    if (!daily || !Array.isArray(daily.time)) {
+      byDay[location.dayId] = null
+      return
+    }
+    const dayIndex = daily.time.indexOf(location.date)
+    byDay[location.dayId] = dayIndex >= 0 ? weatherDayFromDaily(daily, dayIndex) : null
+  })
+  return byDay
+}
+
+function weatherIsFresh() {
+  return Boolean(weatherState.fetchedAt) && (Date.now() - weatherState.fetchedAt < WEATHER_REFRESH_MS)
+}
+
+async function ensureWeatherFresh(force = false) {
+  if (weatherState.request) return weatherState.request
+  if (!force && weatherIsFresh()) return weatherState.byDay
+
+  if (!weatherState.fetchedAt) weatherState.status = 'loading'
+  weatherState.refreshError = false
+  updateWeatherWidgets()
+
+  weatherState.request = fetchTripWeather()
+    .then((byDay) => {
+      weatherState.byDay = byDay
+      weatherState.fetchedAt = Date.now()
+      weatherState.status = 'ready'
+      weatherState.refreshError = false
+      return byDay
+    })
+    .catch((error) => {
+      console.warn('Live weather unavailable', error)
+      weatherState.refreshError = true
+      weatherState.status = weatherState.fetchedAt ? 'ready' : 'error'
+      return weatherState.byDay
+    })
+    .finally(() => {
+      weatherState.request = null
+      updateWeatherWidgets()
+    })
+
+  return weatherState.request
+}
+
+function initWeatherRefresh() {
+  if (!weatherRefreshTimer) {
+    weatherRefreshTimer = window.setInterval(() => ensureWeatherFresh(true), WEATHER_REFRESH_MS)
+  }
+  ensureWeatherFresh(false)
+}
+
+function weatherDateLabel(date) {
+  const parts = String(date).split('-')
+  return Number(parts[2]) + '.' + Number(parts[1])
+}
+
+function weatherUpdatedLabel() {
+  if (!weatherState.fetchedAt) {
+    return weatherState.status === 'error' ? 'לא הצלחנו לטעון את התחזית כרגע' : 'טוען תחזית…'
+  }
+  const time = new Intl.DateTimeFormat('he-IL', { hour: '2-digit', minute: '2-digit' }).format(new Date(weatherState.fetchedAt))
+  if (weatherState.refreshError) return 'לא הצלחנו לרענן כרגע · מוצגים הנתונים האחרונים'
+  return 'עודכן: היום ' + time
+}
+
+function forecastConfidenceNote(date) {
+  const daysAway = calendarDaysBetween(tripTodayIso(), date)
+  return daysAway > 7 ? 'תחזית מוקדמת — עוד עשויה להשתנות' : ''
+}
+
+function weatherContextNote(dayId, forecast) {
+  if (!forecast) return ''
+  if ((forecast.snowfall || 0) > 0.1) return 'ייתכן שלג בגובה — לבדוק תנאי כביש / רכבל לפני היציאה.'
+  if ((forecast.rainProbability || 0) >= 60 || (forecast.precipitation || 0) >= 5) return 'צפוי גשם — כדאי לבדוק שוב את תנאי הפעילות סמוך ליציאה.'
+  if (dayId === 'day-6') return 'יום רגיש למזג האוויר — כדאי לבדוק שוב בבוקר.'
+  if (['day-4', 'day-5', 'day-7'].includes(dayId)) return 'בגובה יכול להיות קר משמעותית מהעמק.'
+  return ''
+}
+
+function weatherUnavailableState(location) {
+  const daysAway = calendarDaysBetween(tripTodayIso(), location.date)
+  if (daysAway < 0) {
+    return '<div class="weather-empty"><strong>היום כבר עבר</strong><span>התחזית החיה אינה מוצגת יותר.</span></div>'
+  }
+  return '<div class="weather-empty"><strong>עדיין מוקדם לתחזית</strong><span>התחזית תופיע אוטומטית כשנתקרב לתאריך.</span></div>'
+}
+
+function weatherLoadingMarkup() {
+  return '<span class="weather-skeleton wide"></span><span class="weather-skeleton medium"></span><span class="weather-skeleton short"></span>'
+}
+
+function weatherFactsMarkup(forecast) {
+  const facts = []
+  if (forecast.rainProbability != null) facts.push('גשם ' + Math.round(forecast.rainProbability) + '%')
+  if (forecast.precipitation != null && forecast.precipitation >= 0.5) facts.push(forecast.precipitation.toFixed(1) + ' מ״מ')
+  if (forecast.snowfall != null && forecast.snowfall > 0.1) facts.push('שלג ' + forecast.snowfall.toFixed(1) + ' ס״מ')
+  return facts.map((fact) => '<span>' + esc(fact) + '</span>').join('')
+}
+
+function renderWeatherCard(day) {
+  const location = weatherLocationForDay(day.id)
+  if (!location) return ''
+  const forecast = weatherState.byDay[day.id]
+
+  let body = ''
+  if (!weatherState.fetchedAt && weatherState.status === 'loading') {
+    body = weatherLoadingMarkup()
+  } else if (!weatherState.fetchedAt && weatherState.status === 'error') {
+    body = '<div class="weather-empty"><strong>לא הצלחנו לטעון</strong><span>התחזית לא זמינה כרגע.</span></div>'
+  } else if (!forecast) {
+    body = weatherUnavailableState(location)
+  } else {
+    const condition = wmoWeather(forecast.weatherCode)
+    const max = forecast.max == null ? '—' : Math.round(forecast.max)
+    const min = forecast.min == null ? '—' : Math.round(forecast.min)
+    const confidence = forecastConfidenceNote(location.date)
+    body =
+      '<div class="weather-condition"><span class="weather-icon" aria-hidden="true">' + condition.icon + '</span><span class="weather-label">' + esc(condition.label) + '</span></div>' +
+      '<div class="weather-temperature"><strong>' + max + '° / ' + min + '°</strong><small>מקס׳ / מינ׳ · °C</small></div>' +
+      '<div class="weather-facts">' + weatherFactsMarkup(forecast) + '</div>' +
+      (confidence ? '<small class="weather-card-note">' + esc(confidence) + '</small>' : '')
+  }
+
+  return '<a class="weather-card" href="#/day/' + esc(day.id) + '">' +
+    '<div class="weather-card-top"><span class="weather-card-date">' + esc(weatherDateLabel(day.date)) + '</span><span class="weather-card-location">' + esc(location.name) + '</span></div>' +
+    body +
+    '</a>'
+}
+
+function renderWeatherOverviewSection(tripData) {
+  return '<section class="section-block trip-weather-section" id="overview-weather-section" aria-labelledby="trip-weather-title" aria-live="polite">' +
+    '<div class="section-heading weather-section-heading"><div><span class="eyebrow">תחזית חיה</span><h2 id="trip-weather-title">מזג האוויר בטיול</h2><p>תחזית חיה שמתעדכנת אוטומטית ככל שמתקרבים לתאריך · טמפרטורות ב־°C</p></div><span class="weather-updated">' + esc(weatherUpdatedLabel()) + '</span></div>' +
+    '<div class="weather-grid">' + tripData.days.map(renderWeatherCard).join('') + '</div>' +
+    '</section>'
+}
+
+function renderDayWeather(day) {
+  const location = weatherLocationForDay(day.id)
+  if (!location) return ''
+  const forecast = weatherState.byDay[day.id]
+  let content = ''
+
+  if (!weatherState.fetchedAt && weatherState.status === 'loading') {
+    content = '<div class="day-weather-copy"><span class="day-weather-title">מזג אוויר צפוי ב־' + esc(location.name) + '</span><div class="day-weather-main"><span>טוען תחזית…</span></div></div>'
+  } else if (!weatherState.fetchedAt && weatherState.status === 'error') {
+    content = '<div class="day-weather-copy"><span class="day-weather-title">מזג אוויר</span><div class="day-weather-main"><span>לא הצלחנו לטעון את התחזית כרגע</span></div></div>'
+  } else if (!forecast) {
+    const daysAway = calendarDaysBetween(tripTodayIso(), location.date)
+    const title = daysAway < 0 ? 'היום כבר עבר' : 'עדיין מוקדם לתחזית'
+    const copy = daysAway < 0 ? 'התחזית החיה אינה מוצגת יותר.' : 'הנתונים יתעדכנו אוטומטית כשנתקרב לתאריך.'
+    content = '<div class="day-weather-copy"><span class="day-weather-title">מזג אוויר ב־' + esc(location.name) + '</span><div class="day-weather-main"><strong>' + title + '</strong></div><small class="day-weather-note">' + copy + '</small></div>'
+  } else {
+    const condition = wmoWeather(forecast.weatherCode)
+    const max = forecast.max == null ? '—' : Math.round(forecast.max)
+    const min = forecast.min == null ? '—' : Math.round(forecast.min)
+    const parts = []
+    if (forecast.rainProbability != null) parts.push('גשם ' + Math.round(forecast.rainProbability) + '%')
+    if (forecast.wind != null) parts.push('רוח עד ' + Math.round(forecast.wind) + ' קמ״ש')
+    if (forecast.snowfall != null && forecast.snowfall > 0.1) parts.push('שלג ' + forecast.snowfall.toFixed(1) + ' ס״מ')
+    const context = weatherContextNote(day.id, forecast)
+    const confidence = forecastConfidenceNote(location.date)
+    content =
+      '<div class="day-weather-copy"><span class="day-weather-title">מזג אוויר צפוי ב־' + esc(location.name) + '</span>' +
+      '<div class="day-weather-main"><span class="day-weather-icon" aria-hidden="true">' + condition.icon + '</span><strong>' + esc(condition.label) + ' · ' + min + '°–' + max + '°C</strong>' + parts.map((part) => '<span>' + esc(part) + '</span>').join('') + '</div>' +
+      (context ? '<small class="day-weather-note">' + esc(context) + '</small>' : '') +
+      (confidence ? '<small class="day-weather-note">' + esc(confidence) + '</small>' : '') +
+      '</div>'
+  }
+
+  return '<section class="day-weather-summary" id="day-weather-summary" data-day-id="' + esc(day.id) + '" aria-live="polite">' +
+    content +
+    '<span class="day-weather-status">' + esc(weatherUpdatedLabel()) + '</span>' +
+    '</section>'
+}
+
+function updateWeatherWidgets() {
+  const overview = document.querySelector('#overview-weather-section')
+  if (overview) overview.outerHTML = renderWeatherOverviewSection(trip)
+
+  const dayWeather = document.querySelector('#day-weather-summary')
+  if (dayWeather) {
+    const day = getDayById(trip, dayWeather.dataset.dayId)
+    if (day) dayWeather.outerHTML = renderDayWeather(day)
+  }
+}
+
 function parseRoute(hash = '') {
   const normalized = hash || '#/overview'
   const dayMatch = normalized.match(/^#\/day\/(day-\d+)$/)
@@ -1988,6 +2369,8 @@ function renderOverviewPage(trip) {
       </div>
       <div class="mini-map-shell"><div class="map-heading"><span>מבט על המסלול</span><a href="#/map">למפה המלאה ←</a></div><div id="overview-map" class="map-canvas map-canvas-mini" data-map-kind="overview"></div></div>
     </section>
+
+    ${renderWeatherOverviewSection(trip)}
 
     <section class="section-block overview-route-section">
       <div class="section-heading"><div><span class="eyebrow">יום אחרי יום</span><h2>המסלול הכללי</h2></div><a class="text-link" href="#/itinerary">למסלול המלא ←</a></div>
@@ -2203,6 +2586,7 @@ function renderDayPage(trip, day) {
       <div class="day-number-watermark">${String(day.number).padStart(2, '0')}</div>
     </header>
     ${dailySummary(day)}
+    ${renderDayWeather(day)}
     ${renderDayAlerts(day)}
     <div class="day-layout">
       <section class="timeline-panel">
@@ -2932,6 +3316,7 @@ function renderApp() {
   initGlobalSearch(trip)
   initMobileUtilityMenu()
   initFlightCountdown()
+  initWeatherRefresh()
   enhanceMaps(trip)
 }
 
