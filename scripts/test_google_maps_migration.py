@@ -49,7 +49,7 @@ route_sentinels = [
     "routePath: [coords.caDelLasco, coords.rittenBolzano, coords.soprabolzano, coords.rittenBolzano, coords.bolzanoWalther, coords.rittenBolzano, coords.santaMaddalena, coords.echoBressanone]",
     "routePath: [coords.echoBressanone, coords.alpeSiusi, coords.gostnerSchwaige, coords.alpeSiusi, coords.passoGardena, coords.postResidence]",
     "routePath: [coords.postResidence, coords.treCime, coords.misurina, coords.braies, coords.postResidence, coords.sanCandido, coords.postResidence]",
-    "routePath: [coords.postResidence, coords.passoSella, coords.friedrichAugust, coords.passoSella, coords.dolomitiExclusive]",
+    "routePath: [coords.postResidence, coords.passoSella, coords.dolomitiExclusive]",
     "routePath: [coords.dolomitiExclusive, coords.vidor, coords.baitaCascate, coords.vidor, coords.dolomitiExclusive, coords.qcSpa, coords.dolomitiExclusive]",
     "routePath: [coords.dolomitiExclusive, coords.varone, coords.riva, coords.capoReamol, coords.limone, coords.abacusHotel]",
     "routePath: [coords.abacusHotel, coords.starbucksRoastery, coords.primarkTorino, coords.spunDuomo, coords.venchiMengoni, coords.ferrariMilano, coords.uniqloCordusio, coords.abacusHotel, coords.monza, coords.abacusHotel, coords.cookingClassMilan, coords.gelateriaUmberto, coords.milan, coords.abacusHotel]",
@@ -63,7 +63,7 @@ mode_sentinels = [
     "routeModes: ['DRIVING', 'CABLE', 'CABLE', 'WALKING', 'WALKING', 'DRIVING', 'DRIVING']",
     "routeModes: ['DRIVING', 'WALKING', 'WALKING', 'DRIVING', 'DRIVING']",
     "routeModes: ['DRIVING', 'DRIVING', 'DRIVING', 'DRIVING', 'WALKING', 'WALKING']",
-    "routeModes: ['DRIVING', 'WALKING', 'WALKING', 'DRIVING']",
+    "routeModes: ['DRIVING', 'DRIVING']",
     "routeModes: ['DRIVING', 'SHUTTLE', 'SHUTTLE', 'DRIVING', 'WALKING', 'WALKING']",
     "routeModes: ['TRANSIT', 'WALKING', 'WALKING', 'WALKING', 'WALKING', 'WALKING', 'TRANSIT', 'DRIVING', 'DRIVING', 'TRANSIT', 'WALKING', 'WALKING', 'TRANSIT']",
 ]
