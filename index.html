@@ -611,44 +611,67 @@ details[open] summary > span { transform: rotate(45deg); }
   font-size: 16px;
 }
 .drive-copy small { margin-top: 5px; }
-.day-alerts {
-  display: grid;
-  gap: 8px;
-  margin-top: 12px;
-}
-.day-alert {
-  display: grid;
-  grid-template-columns: 28px minmax(0, 1fr);
-  gap: 10px;
-  align-items: start;
-  padding: 11px 13px;
+.day-critical-alert {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  min-height: 46px;
+  margin-top: 10px;
+  padding: 8px 12px;
   border: 1px solid #E6CDBF;
-  border-radius: 12px;
-  background: var(--red-soft);
+  border-radius: 11px;
+  background: #FCF7F4;
 }
-.day-alert > span {
-  width: 26px;
-  height: 26px;
+.day-critical-alert > span {
+  flex: 0 0 auto;
+  color: var(--red);
+  font-size: 17px;
+  line-height: 1;
+}
+.day-critical-alert p {
+  margin: 0;
+  font-size: 14px;
+  line-height: 1.4;
+}
+.day-notes {
+  margin-top: 18px;
+  overflow: hidden;
+  border: 1px solid var(--border);
+  border-radius: 13px;
+  background: #fff;
+}
+.day-notes > summary {
+  min-height: 46px;
   display: grid;
-  place-items: center;
-  border-radius: 50%;
-  background: var(--red);
-  color: #fff;
-  font-size: 16px;
-  font-weight: 800;
+  grid-template-columns: minmax(0, 1fr) auto 22px;
+  align-items: center;
+  gap: 10px;
+  padding: 9px 13px;
+  color: var(--ink);
+  font-size: 15px;
+  font-weight: 650;
+  cursor: pointer;
 }
-.day-alert p {
-  margin: 1px 0 0;
-  font-size: 16px;
-  line-height: 1.5;
-}
+.day-notes-title { display: inline-flex; align-items: center; gap: 7px; }
+.day-notes-title > span { color: var(--green); font-size: 16px; }
+.day-notes > summary small { color: var(--muted); font-size: 13px; font-weight: 500; }
+.day-notes-toggle { color: var(--muted); font-size: 17px; transition: transform .2s ease; }
+.day-notes[open] .day-notes-toggle { transform: rotate(45deg); }
+.day-notes-content { border-top: 1px solid var(--border); padding: 4px 14px 7px; }
+.day-notes-content ul { margin: 0; padding: 0 18px 0 0; }
+.day-notes-content li { padding: 8px 0; color: #55514D; font-size: 14px; line-height: 1.5; }
+.day-notes-content li + li { border-top: 1px solid #F0EEEB; }
+
 .status-planned { background: var(--green-soft); color: var(--green); }
 .status-attention { background: var(--red-soft); color: var(--red); }
 
 @media (max-width: 720px) {
   .timeline-drive { margin-right: 37px; grid-template-columns: 30px minmax(0, 1fr); padding: 9px 10px; }
   .drive-icon { width: 28px; height: 28px; font-size: 16px; }
-  .day-alert { grid-template-columns: 26px minmax(0, 1fr); }
+  .day-critical-alert { min-height: 44px; padding: 7px 10px; }
+  .day-critical-alert p { font-size: 13px; line-height: 1.35; }
+  .day-notes { margin-top: 14px; }
+  .day-notes > summary { min-height: 44px; padding: 8px 11px; }
 }
 
 
@@ -1183,10 +1206,6 @@ const trip = {
       walking: 'ערב רגוע ברגל ב־Bellano',
       highlights: ['Ca’ del Lasco – Tulipano · הוזמן', 'Bellano · ערב רגוע'],
       areaOptions: [],
-      alerts: [
-        'אחרי הנחיתה לא מתכננים עצירת sightseeing בדרך — אוספים מזוודות ורכב ונוסעים ישירות ל־Ca’ del Lasco ב־Bellano.',
-        'אחרי הצ׳ק־אין משאירים את הרכב בחניה הפרטית של מקום הלינה ויורדים ברגל למרכז Bellano ולאגם. בחזרה יש הליכה בעלייה ל־Ca’ del Lasco.',
-      ],
       stops: [
         place({ id: 'arrival-mxp', type: 'flight', name: 'Milan Malpensa Airport · Terminal 1', time: '14:05', status: 'booked', coordinates: coords.malpensa, details: { notes: 'נחיתה ב־Milan Malpensa Airport. אחרי הנחיתה: איסוף מזוודות ואז איסוף הרכב.' } }),
         place({ id: 'rental-pickup', type: 'car', name: 'SIXT · Milano Malpensa Airport · Terminal 1', time: 'אחרי איסוף המזוודות', status: 'booked', coordinates: coords.malpensa, details: { notes: 'איסוף הרכב לפי השובר. יעד יציאה משוער מהשדה: 15:00–15:30, בהתאם לזמן המזוודות וההשכרה.' } }),
@@ -1222,18 +1241,15 @@ const trip = {
           },
         },
       ],
-      alerts: [
-        'בוקר קבוע: יוצאים מ־Ca’ del Lasco ברגל 08:40–08:45 ומגיעים ל־Orrido di Bellano לפתיחה ב־09:00.',
-        'אחרי Orrido היום גמיש: Bellagio ו־Menaggio מתוכננות; Villa Carlotta / Tremezzo היא העצירה היחידה שמוגדרת אופציונלית.',
-        'הרכב נשאר כל היום בחניה הפרטית של Ca’ del Lasco. אחרי Orrido ממשיכים ישירות ברגל ל־Bellano-Tartavalle Terme ולא חוזרים למלון.',
-        'מעבורות: 3.10 עדיין בתוך לוח הקיץ 2026. קונים כרטיסים באותו יום, משתדלים להגיע לקופה כ־20 דקות לפני, ובודקים את המעבורת הבאה במקום לעבוד לפי לו״ז קשיח. בקופה לבדוק גם אם כרטיס circular / day-type משתלם יותר מכרטיסים בודדים למסלול שנבחר בפועל.',
+      dayNotes: [
+        'לוחות המעבורות ל־3.10 עדיין דורשים בדיקה סמוך למועד; באותו יום נבחר את החיבור הבא שנוח לנו ולא נבנה על לו״ז קשיח.',
       ],
       stops: [
         place({ id: 'leave-ca-del-lasco-day2', type: 'activity', name: 'Ca’ del Lasco → Orrido di Bellano · ברגל', time: '08:40–08:45', duration: 'כ־10 דקות', status: 'planned', coordinates: coords.caDelLasco, details: { notes: 'יורדים ברגל מהמלון לכיוון Orrido. אין צורך להזיז את הרכב.' } }),
         place({ id: 'orrido-day2-final', type: 'attraction', name: 'Orrido di Bellano', description: 'ערוץ סלע צר בתוך Bellano עם מפלים ושבילים מוגבהים מעל המים. זה ביקור טבע קצר לפני שממשיכים ברכבת ל־Varenna.', time: '09:00', duration: 'כ־45–60 דקות', status: 'must', coordinates: coords.bellano, details: { openingHours: 'שבת 3.10.2026 · 09:00–19:00 · כניסה אחרונה 20 דקות לפני הסגירה', price: '€8 למבוגר · Orrido בלבד', address: 'Piazza S. Giorgio, 23822 Bellano LC, Italy', reservation: 'אין צורך בהזמנה מראש למבקרים יחידים', notes: 'ערוץ טבע עם מפלים, קירות סלע צרים, שבילים מוגבהים ומדרגות. יש מחיר €5 עם כרטיס רכבת או lake-navigation תקף, אבל מכיוון שאנחנו מבקרים לפני הנסיעה הראשונה באותו בוקר לא מניחים שנקבל את ההנחה אלא אם כבר יהיה לנו כרטיס תחבורה תקף.' } }),
         place({ id: 'walk-orrido-bellano-station', type: 'transfer', name: 'Orrido di Bellano → Bellano-Tartavalle Terme · ברגל', time: '≈10:00', duration: 'כ־8–10 דקות', status: 'planned', coordinates: coords.bellanoStation, details: { notes: 'אחרי Orrido ממשיכים ישירות לתחנה — לא חוזרים ל־Ca’ del Lasco.' } }),
         place({ id: 'train-bellano-varenna-day2', type: 'transfer', name: 'Bellano-Tartavalle Terme → Varenna-Esino', time: 'הרכבת הראשונה שנוחה אחרי Orrido', duration: 'כ־4–7 דקות', status: 'planned', coordinates: coords.varennaStation, details: { price: 'כ־€2 לאדם לכל כיוון · מחיר משוער בלבד, לבדוק בעת הקנייה', notes: 'לא מקבעים רכבת ספציפית עד שלוח 3.10.2026 מאושר.' } }),
-        place({ id: 'walk-varenna-station-ferry', type: 'transfer', name: 'Varenna-Esino → Varenna Ferry Terminal / Imbarcadero di Varenna', time: 'אחרי הירידה מהרכבת', duration: 'כ־5–10 דקות ברגל', status: 'planned', coordinates: coords.varenna, details: { notes: 'בשלב הזה לא עושים בלוק sightseeing ב־Varenna; יורדים ישירות לכיוון המעבורות ומתחילים את החלק הגמיש של היום.' } }),
+        place({ id: 'walk-varenna-station-ferry', type: 'transfer', name: 'Varenna-Esino → Varenna Ferry Terminal / Imbarcadero di Varenna', time: 'אחרי הירידה מהרכבת', duration: 'כ־5–10 דקות ברגל', status: 'planned', coordinates: coords.varenna, details: { notes: 'בשלב הזה לא עושים בלוק sightseeing ב־Varenna; יורדים ישירות לכיוון המעבורות ומתחילים את החלק הגמיש של היום. בקופה אפשר לבדוק אם כרטיס circular / day-type משתלם יותר מכרטיסים בודדים למסלול שנבחר בפועל.' } }),
         place({ id: 'bellagio-day2-final', name: 'Bellagio', description: 'עיירת אגם ציורית ב־Lake Como עם סמטאות מדורגות, טיילת ונוף למים. אצלנו זה שיטוט חופשי, אוכל וקפה.', time: 'גמיש · ללא שעה קבועה', duration: 'נשארים עד שמרגישים שמיצינו', status: 'planned', coordinates: coords.bellagio, details: { price: 'העיירה עצמה חינם', notes: 'עיירת Lake Como קלאסית עם רחובות היסטוריים מדורגים, קו מים, בתי קפה, מסעדות, חנויות ונוף לאגם. מגיעים במעבורת מ־Varenna; כשמסיימים פשוט בודקים את החיבור הבא שנוח.' } }),
         place({ id: 'villa-carlotta-flex-day2-final', type: 'attraction', name: 'Villa Carlotta / Tremezzo', description: 'וילה היסטורית ב־Tremezzo עם גנים בוטניים גדולים ונוף ל־Lake Como. זו עצירה אופציונלית רק אם היא משתלבת בנוחות עם המעבורות.', time: 'אופציונלי · בין Bellagio ל־Menaggio אם נוח', duration: 'כ־45–90 דקות אם נכנסים', status: 'optional', coordinates: coords.tremezzo, details: { openingHours: '3.10.2026 · 10:00–19:00 · כרטיס אחרון 18:00 · מוזיאון עד 18:30', price: '€17.50 למבוגר', address: 'Via Statale 5605, 22016 Tremezzina, Italy', notes: 'מוסיפים רק אם החיבור במעבורת נוח ומתחשק לנו גנים / וילה. לא נותנים לזה לקצר את Bellagio או Menaggio.' } }),
         place({ id: 'menaggio-day2-final', name: 'Menaggio', description: 'עיירת אגם רגועה עם כיכר מרכזית וטיילת על שפת Lake Como. אצלנו זו עצירה גמישה לשיטוט ונוף.', time: 'גמיש · ללא שעה קבועה', duration: 'לפי החשק', status: 'planned', coordinates: coords.menaggio, details: { price: 'העיירה עצמה חינם', notes: 'עיירת אגם רגועה עם כיכר מרכזית, טיילת, בתי קפה ונוף פתוח ל־Lake Como. מגיעים לפי חיבור המעבורת / הסירה שנוח באותו יום.' } }),
@@ -1254,10 +1270,8 @@ const trip = {
       drivingTime: 'כ־4:40–5:10 שעות נהיגה נטו · תלוי בתנועה',
       walking: 'Bolzano + Soprabolzano + Val di Funes · הליכות קצרות וקלות',
       highlights: ['Ritten Cable Car · Bolzano ↔ Soprabolzano', 'Bolzano historic center + Loacker Piazza Walther', 'Val di Funes / Santa Maddalena', 'ecHo Apartments & SPA · Bressanone'],
-      alerts: [
-        'Ca’ del Lasco: check-out רשמי עד 10:00; אנחנו יוצאים כבר ב־08:00 לפי התכנון.',
-        'זהו יום מעבר עם כמה עצירות משמעותיות בלבד. אם הנסיעה הארוכה מ־Bellano מתעכבת, מקצרים קודם את השיטוט במרכז Bolzano — לא את Val di Funes ולא דוחים את ההגעה למלון שלא לצורך.',
-        'ecHo Apartments & SPA: הוזמן. Check-in החל מ־14:00 עם גישה דיגיטלית / ללא מגע; check-out עד 10:00. אין באישור מגבלת 19:00 קשיחה.',
+      dayNotes: [
+        'אם הנסיעה מ־Bellano מתעכבת, מקצרים קודם את השיטוט במרכז Bolzano — לא את Val di Funes ולא דוחים את ההגעה למלון שלא לצורך.',
       ],
       stops: [
         place({ id: 'ca-del-lasco-checkout-day3', type: 'hotel', name: 'Ca’ del Lasco – Tulipano · צ׳ק־אאוט ויציאה', time: '08:00', status: 'booked', coordinates: coords.caDelLasco, details: { address: 'Via per Taceno 19, 23822 Bellano (LC), Italy', notes: 'יוצאים ישירות לכיוון Bolzano. אין עצירת יקב בדרך ביום הזה.' } }),
@@ -1382,11 +1396,7 @@ const trip = {
       walking: '1–1.5 שעות בפועל',
       highlights: ['Alpe di Siusi + Gostner Schwaige', 'Passo Gardena', 'San Candido'],
       areaOptions: [],
-      alerts: [
-        'חשוב: אם עולים ל־Alpe di Siusi / Compatsch ברכב פרטי, העלייה מותרת רק לפני 09:00 — לכן היציאה מ־Bressanone סביב 07:15–07:30 חשובה.',
-        'החלטת מזוודות — פתוחה / להחלטה סופית: המסלול המועדף והיעיל הוא לעשות check-out מ־ecHo בבוקר, לקחת את המזוודות איתנו, להשאיר אותן מוסתרות בתא המטען בזמן Alpe di Siusi ולהמשיך משם ישירות ל־Passo Gardena ואז San Candido.',
-        'חלופה פחות מועדפת: לבקש מ־ecHo לשמור את המזוודות ולחזור ל־Bressanone אחרי Alpe di Siusi. זו סטייה משמעותית ולכן לא מקבעים אותה במסלול.',
-      ],
+      criticalAlert: 'Alpe di Siusi: צריך לעבור את מגבלת הכניסה לרכב פרטי ל־Compatsch לפני 09:00.',
       stops: [
         place({ id: 'day5-checkout-luggage', type: 'hotel', name: 'ecHo Apartments & SPA · צ׳ק־אאוט + החלטת מזוודות', time: '07:15–07:30', status: 'booked', coordinates: coords.echoBressanone, details: { openingHours: 'Check-out עד 10:00', address: 'Via Millan 14/A, 39042 Bressanone (BZ), Italy', notes: 'האפשרות המועדפת: לוקחים את המזוודות איתנו ומשאירים אותן מוסתרות בתא המטען בזמן Alpe di Siusi כדי להמשיך ישירות מזרחה. החלופה: לבקש שמירת מזוודות ולחזור ל־Bressanone — סטייה משמעותית ולא המסלול המועדף.' } }),
         drive('drive-echo-alpe', 'ecHo Apartments & SPA, Bressanone → Alpe di Siusi / Compatsch', 'כ־35–45 דקות', '07:15–07:30 יציאה', { notes: 'יעד הגעה: בערך 08:00–08:15, הרבה לפני סגירת העלייה לרכב פרטי ב־09:00.' }),
@@ -1413,10 +1423,7 @@ const trip = {
       walking: 'Tre Cime קצר + Lago di Braies + כ־5 דקות מהמלון ל־Monte Baranci',
       highlights: ['Tre Cime di Lavaredo', 'Lago di Braies', 'Funbob Monte Baranci'],
       areaOptions: [],
-      alerts: [
-        'זה היום הכי תלוי במזג האוויר; אם התחזית לא טובה, עדיף להחליף אותו עם יום אחר בדולומיטים.',
-        'הסדר החדש מכוון: Lago di Braies לפני Funbob. חוזרים ל־San Candido פעם אחת בלבד, מחנים ב־Post Residence ואז מסיימים את היום ב־Monte Baranci שנמצא בערך 5 דקות הליכה מהמלון.',
-      ],
+      criticalAlert: 'Tre Cime: פתיחת הכביש באוקטובר תלויה במזג האוויר ונדרשת הזמנה מראש לעלייה ברכב — לבדוק לפני היציאה.',
       stops: [
         drive('drive-post-tre-cime', 'Post Residence, San Candido → Rifugio Auronzo / Tre Cime', 'כ־40 דקות', '08:00 יציאה'),
         place({ id: 'tre-cime', name: 'Tre Cime di Lavaredo', description: 'אחד מסמלי הדולומיטים — קבוצת שלוש פסגות סלע דרמטיות. מגיעים לאזור Rifugio Auronzo ועושים הליכה קצרה לכיוון נקודות התצפית, בלי לבצע את המסלול המעגלי המלא.', time: '08:40–11:30', duration: '2–2.5 שעות', status: 'to-book', coordinates: coords.treCime, details: { price: '€40 לעלייה ברכב', reservation: 'נדרשת הזמנה מראש', notes: 'לא עושים את ההקפה המלאה: מהחניון לכיוון Rifugio Lavaredo / התצפיות וחזרה. פתיחת הכביש באוקטובר תלויה במזג האוויר.' } }),
@@ -1509,10 +1516,8 @@ const trip = {
           details: { notes: 'עדיפות נמוכה עבורנו כי שיטוט בעיירות הוא לא המוקד. רק אם זה נופל טוב על הדרך ומתחשק.' },
         },
       ],
-      alerts: [
-        'אחרי Passo Sella מחליטים באותו יום לפי מזג האוויר / הראות / האנרגיה / מצב הרוח: Sass Pordoi או Agritur Agua Biencia או Canazei — או שמדלגים על הכול וממשיכים ישירות למלון. אלה חלופות, לא רשימת חובה, ולא מתכננים לעשות את כולן.',
-        'הפילוסופיה של היום: Passo Sella הוא סטופ הנוף הקבוע היחיד לפני המלון. אחריו משאירים את Val di Fassa גמיש בכוונה; אם לא מתחשק לנו עוד פעילות, לגמרי בסדר להגיע מוקדם וליהנות מהמלון כשהחדר מוכן.',
-        'DOLOMITI EXCLUSIVE YOUR MOUNTAIN SUITE הוזמן ל־8–10.10. כתובת רשמית: Strada Dolomites 55 A, 38036 Pozza di Fassa. Check-in שמופיע כרגע ב־Booking: 15:00–21:30; אם נגיע מוקדם נבקש להשאיר מזוודות / רכב אם אפשר. המלון עצמו הוא חלק מהחוויה: suite, sauna / wellness, מנוחה ונוף הרים.',
+      dayNotes: [
+        'אחרי Passo Sella בוחרים לכל היותר אופציה אחת לפי מזג האוויר והאנרגיה — או ממשיכים ישירות למלון.',
       ],
       stops: [
         drive('drive-post-passo-sella', 'Post Residence, San Candido → Passo Sella', 'כ־1:20–1:30 שעות', '08:00–≈09:25/09:35', { notes: 'נסיעה הררית; משאירים מעט buffer לתנועה ולתנאי הכביש.' }),
@@ -1594,10 +1599,8 @@ const trip = {
           details: { notes: 'עדיפות נמוכה עבורנו כי שיטוט בעיירות הוא לא המוקד. רק אם זה נופל טוב על הדרך ומתחשק.' },
         },
       ],
-      alerts: [
-        'יום רגוע בכוונה: חוויה אחת בטבע → זמן משמעותי במלון → QC Spa Dolomiti ב־17:00. אין אטרקציה קבועה נוספת בין Val San Nicolò לספא.',
-        'Val San Nicolò shuttle מאומת ל־9.10.2026: בלוח הרשמי של Comune di San Giovanni di Fassa השירות פועל 29.5–11.10, 08:30–18:30. המחיר €7 לכיוון והשירות בערך כל 30 דקות. עם Val di Fassa Guest Card יש נסיעת הלוך־חזור חינם בתקופת הסתיו 7.9–11.10, בכפוף להצגת הכרטיס.',
-        'לא בונים את היום סביב Buffaure, Ciampac או Ciampedie: לפי לוחות 2026 הרשמיים הם כבר מחוץ לעונת הפעילות בתאריך שלנו.',
+      dayNotes: [
+        'Buffaure, Ciampac ו־Ciampedie כבר מחוץ לעונת הפעילות בתאריך שלנו, ולכן לא בונים עליהם כאופציות ליום הזה.',
       ],
       stops: [
         place({ id: 'dolomiti-exclusive-day8-start', type: 'hotel', name: 'DOLOMITI EXCLUSIVE YOUR MOUNTAIN SUITE · בוקר איטי', time: 'בוקר', status: 'booked', coordinates: coords.dolomitiExclusive, details: { address: 'Strada Dolomites 55/A int.1, 38036 Sèn Jan di Fassa (TN), Italy', notes: 'לא ממהרים לצאת. ארוחת בוקר / חדר / wellness בקצב רגוע.' } }),
@@ -1649,11 +1652,6 @@ const trip = {
             website: 'https://www.omkafe.com/en/visita-omkafe',
           },
         },
-      ],
-      alerts: [
-        'כל היום ברכב השכור — אין מעבורת ואין תחבורה ציבורית בין Riva ל־Limone.',
-        'המזוודות נשארות ברכב לאורך היום: לשמור הכול מוסתר בתא המטען הסגור ולהעדיף חניונים ציבוריים / רשמיים. לא להשאיר שום דבר גלוי בתא הנוסעים.',
-        'Ciclopista del Garda: עושים רק טעימה מהקטע הפנורמי התלוי ליד Capo Reamol — לא את המסלול המלא. השביל המפורסם לא ממשיך כיום עד Riva del Garda; הוא מסתיים בגבול Lombardia / Trentino, ולכן הולכים 500–800 מ׳, מסתובבים וחוזרים באותו שביל.',
       ],
       stops: [
         place({ id: 'dolomiti-exclusive-checkout-day9', type: 'hotel', name: 'DOLOMITI EXCLUSIVE YOUR MOUNTAIN SUITE · צ׳ק־אאוט ויציאה', time: '08:00', status: 'booked', coordinates: coords.dolomitiExclusive, details: { address: 'Strada Dolomites 55/A int.1, 38036 Sèn Jan di Fassa (TN), Italy', notes: 'יציאה ישירה לכיוון Lake Garda. זו הנסיעה הארוכה של הבוקר מהדולומיטים לצפון האגם.' } }),
@@ -1790,12 +1788,6 @@ const trip = {
           },
         },
       ],
-      alerts: [
-        'לפי הלו״ז הזמני שאנחנו עובדים לפיו כרגע: E4 Championship ב־13:40 ו־Italian GT Sprint GT3 ב־14:50. הלו״ז הרשמי עדיין זמני ולכן בודקים שוב סמוך לאירוע.',
-        'הסדנה ב־18:30 הוזמנה. צריך להיות ב־Viale Premuda 13 עד 18:15; מכוונים להגיע סביב 18:00–18:10 כדי להשאיר מרווח ביטחון לעיכוב קטן ביציאה מ־Monza.',
-        'לא נוסעים עם הרכב למרכז Milan: משאירים אותו בחניון של Abacus Hotel ונוסעים ב־M1. הערב של יום 10 נשאר גמיש כי ייתכן שכבר נגיע למרכז גם בערב 10.10.',
-        'מסלול הבוקר ב־Milan גמיש — אם כבר ביקרנו בחלק מהמקומות בערב 10.10, פשוט מדלגים עליהם וממשיכים עם שאר המסלול.',
-      ],
       stops: [
         place({ id: 'abacus-hotel-day10-start', type: 'hotel', name: 'Abacus Hotel', time: '≈07:50–08:00', status: 'booked', coordinates: coords.abacusHotel, details: { address: 'Via Monte Grappa 39, 20099 Sesto San Giovanni MI, Italy', parking: 'Garage כלול בהזמנה', notes: 'יוצאים ברגל כ־4 דקות ל־Sesto 1° Maggio FS. הרכב נשאר במלון.' } }),
         transfer('metro-sesto-cordusio-morning', 'Sesto 1° Maggio FS → Cordusio', 'כ־25–30 דקות', '≈08:00–08:30', { notes: 'M1 ישיר. יורדים ב־Cordusio, ממש ליד Starbucks Reserve Roastery.' }),
@@ -1839,7 +1831,6 @@ const trip = {
       drivingTime: 'כ־40–50 דקות מ־Abacus Hotel ל־Malpensa · לפני buffer',
       walking: null,
       highlights: ['טיסה חזרה'],
-      alerts: [],
       stops: [
         place({ id: 'abacus-departure', type: 'hotel', name: 'Abacus Hotel · צ׳ק־אאוט ויציאה', time: '≈08:30–09:00', status: 'booked', coordinates: coords.abacusHotel, details: { address: 'Via Monte Grappa 39, 20099 Sesto San Giovanni MI, Italy', openingHours: 'Check-out לפני 12:00', parking: 'Garage כלול בהזמנה' } }),
         drive('drive-abacus-mxp', 'Abacus Hotel → Milan Malpensa Airport', 'כ־40–50 דקות', '≈08:30–09:00', { notes: 'זמן נהיגה נטו ממקורות מסלול הוא סביב 39–43 דקות; נשאיר buffer לתנועה ולהחזרת הרכב.' }),
@@ -2564,9 +2555,19 @@ function renderParkingOptions(day) {
   </section>`
 }
 
-function renderDayAlerts(day) {
-  if (!day.alerts?.length) return ''
-  return `<div class="day-alerts">${day.alerts.map((alert) => `<div class="day-alert"><span aria-hidden="true">!</span><p>${esc(alert)}</p></div>`).join('')}</div>`
+function renderCriticalAlert(day) {
+  if (!day.criticalAlert) return ''
+  return `<div class="day-critical-alert" role="note"><span aria-hidden="true">⚠</span><p>${esc(day.criticalAlert)}</p></div>`
+}
+
+function renderDayNotes(day) {
+  const notes = day.dayNotes || []
+  if (!notes.length) return ''
+  const countLabel = notes.length === 1 ? 'הערה אחת' : `${notes.length} הערות`
+  return `<details class="day-notes">
+    <summary><span class="day-notes-title"><span aria-hidden="true">ⓘ</span> דגשים ליום</span><small>${esc(countLabel)}</small><span class="day-notes-toggle" aria-hidden="true">＋</span></summary>
+    <div class="day-notes-content"><ul>${notes.map((note) => `<li>${esc(note)}</li>`).join('')}</ul></div>
+  </details>`
 }
 
 
@@ -2587,11 +2588,12 @@ function renderDayPage(trip, day) {
     </header>
     ${dailySummary(day)}
     ${renderDayWeather(day)}
-    ${renderDayAlerts(day)}
+    ${renderCriticalAlert(day)}
     <div class="day-layout">
       <section class="timeline-panel">
         <div class="section-heading compact"><div><span class="eyebrow">סדר היום</span><h2>מה עושים היום</h2></div></div>
         <div class="timeline">${renderTimeline(day.stops)}</div>
+        ${renderDayNotes(day)}
       </section>
       <aside class="day-map-panel">
         <div class="map-card sticky-card"><div class="map-heading"><span>המפה של היום</span><small>${hasCoordinates ? 'מסלול משוער · לפי סדר היום' : 'תתמלא עם המסלול'}</small></div><div id="day-map" class="map-canvas" data-map-kind="day" data-day-id="${esc(day.id)}"></div>${renderGoogleMapsRouteButtons(day)}</div>
