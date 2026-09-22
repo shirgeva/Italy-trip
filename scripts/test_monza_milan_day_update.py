@@ -75,7 +75,7 @@ for token in [
     "Gelateria Umberto 1934 – affogato",
     "אם לא היינו כאן כבר בערב של 10.10",
     "Milan · ערב אחרון",
-    "הלו״ז הרשמי עדיין זמני",
+    "התוכנית עדיין אינה סופית ויש לבדוק שוב סמוך ל־11.10",
 ]:
     assert token in d, f'Missing Day 10 itinerary token: {token}'
 
