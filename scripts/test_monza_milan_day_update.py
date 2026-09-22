@@ -88,10 +88,13 @@ for fixed_option_id in [
 ]:
     assert fixed_option_id not in d, f'Fixed Day 10 stop still duplicated in area options: {fixed_option_id}'
 
-# UNIQLO is a planned timeline stop, not an area option, and the flexible-morning note is preserved.
+# UNIQLO remains a planned timeline stop. Morning flexibility now lives in the relevant stop notes,
+# rather than a duplicated top-of-day alert.
 assert "id: 'uniqlo-cordusio-morning'" in d
 assert "status: 'planned'" in d
-assert "מסלול הבוקר ב־Milan גמיש — אם כבר ביקרנו בחלק מהמקומות בערב 10.10, פשוט מדלגים עליהם וממשיכים עם שאר המסלול." in d
+assert "אם כבר היינו כאן בערב 10.10 פשוט מדלגים וממשיכים במסלול." in d
+assert "אם כבר היינו כאן בערב 10.10 פשוט מדלגים וממשיכים." in d
+assert "אם לא היינו כאן כבר בערב של 10.10" in d
 
 # Lindt and Enrico Rizzi remain area options only.
 for option_id in ["id: 'lindt-via-dante'", "id: 'enrico-rizzi-factory'"]:
