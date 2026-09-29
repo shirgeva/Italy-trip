@@ -65,10 +65,21 @@ button, input { font: inherit; }
 .map-app-link:hover { transform: translateY(-1px); border-color: #D7D3CE; box-shadow: 0 5px 14px rgba(32,31,29,.07); }
 .map-app-link img { width: 23px; height: 23px; display: block; object-fit: contain; }
 .packing-grid { display: grid; grid-template-columns: repeat(2, minmax(0,1fr)); gap: 16px; }
-.packing-card { background: var(--surface); border: 1px solid var(--border); border-radius: 16px; padding: 18px; box-shadow: var(--shadow); }
-.packing-card h3 { margin: 0 0 12px; font-size: 18px; }
-.packing-card .checklist-item { border-top: 1px solid var(--border); }
-.packing-card .checklist-item:first-of-type { border-top: 0; }
+.packing-card { min-width: 0; align-self: start; background: var(--surface); border: 1px solid var(--border); border-radius: 16px; box-shadow: var(--shadow); overflow: hidden; }
+.packing-summary { display: flex; align-items: center; gap: 12px; min-height: 62px; padding: 14px 18px; cursor: pointer; list-style: none; }
+.packing-summary::-webkit-details-marker { display: none; }
+.packing-summary:focus-visible { outline: 2px solid var(--green); outline-offset: -3px; }
+.packing-summary-title { min-width: 0; flex: 1; font-size: 18px; font-weight: 700; }
+.packing-count { flex: 0 0 auto; color: var(--muted); font-size: 16px; direction: ltr; }
+.packing-chevron { width: 9px; height: 9px; flex: 0 0 auto; border-left: 2px solid currentColor; border-bottom: 2px solid currentColor; transform: rotate(-45deg); transition: transform .2s ease; }
+.packing-card[open] .packing-chevron { transform: rotate(135deg); }
+.packing-card.is-complete .packing-count { color: var(--green); font-weight: 700; }
+.packing-items { padding: 0 10px 8px; border-top: 1px solid var(--border); }
+.packing-card .checklist-item { min-width: 0; border-left: 0; border-bottom: 1px solid var(--border); }
+.packing-card .checklist-item:last-child { border-bottom: 0; }
+.packing-card .checklist-item > span:last-child { min-width: 0; overflow-wrap: anywhere; }
+.packing-progress { margin: 0 0 16px; color: var(--muted); font-size: 16px; }
+.packing-progress strong { color: var(--ink); }
 .sidebar-label { color: rgba(255,255,255,.34); font-size: 16px; text-transform: uppercase; letter-spacing: 1.2px; padding: 12px 9px 8px; }
 .sidebar-days { padding-bottom: 26px; }
 .day-link { display: grid; grid-template-columns: 28px 1fr; gap: 9px; align-items: center; padding: 8px 9px; border-radius: 10px; color: rgba(255,255,255,.68); }
@@ -1903,11 +1914,14 @@ const trip = {
     { id: 'travel-apps', label: 'להוריד אפליקציות רלוונטיות', done: false },
   ],
   packing: [
-    { title: 'מסמכים וכסף', items: ['דרכונים', 'רישיונות נהיגה ישראליים', 'רישיונות נהיגה בינלאומיים', 'כרטיסי אשראי', 'אישורי טיסות, רכב ומלונות'] },
-    { title: 'בגדים לדולומיטים', items: ['מעיל חם', 'מעיל גשם / שכבה נגד רוח', 'שכבות חמות', 'נעלי הליכה נוחות', 'כובע חם / כפפות דקות'] },
-    { title: 'ספא ולינה', items: ['בגד ים', 'כפכפים', 'בגדים נוחים לערב', 'תיק קטן ליום'] },
-    { title: 'טלפון ודרך', items: ['מטענים', 'סוללה ניידת', 'כבל טעינה לרכב', 'מתאם חשמל', 'מעמד לטלפון ברכב'] },
-    { title: 'דברים קטנים', items: ['משקפי שמש', 'בקבוק מים', 'טואלטיקה', 'תרופות וציוד אישי', 'שקית / תיק לכביסה'] },
+    { title: 'בגדים ונעליים', items: ['בגדים נוחים ליום יום', 'בגדים חמים', 'בגדים טרמיים', 'מעיל', 'מעיל גשם / שכבה נגד רוח', 'כובע מצחייה', 'כובע גרב', 'כפפות דקות', 'צעיף', 'פיג׳מה', 'גרביים', 'תחתונים', 'חזיות', 'בגד ים', 'בגדי ספורט', 'בגדים נוחים לערב', 'נעלי הליכה', 'נעליים לשטח', 'כפכפים'] },
+    { title: 'רחצה וטיפוח', items: ['סבונים', 'מברשת + משחת שיניים', 'דאודורנט', 'בושם', 'מסרק', 'תחתוניות', 'קרם פנים', 'ג׳ל גבות', 'אלכוג׳ל', 'שפתון', 'קרם ידיים', 'קרם הגנה', 'קרם הגנה לפנים', 'דאודורנט לשפשפות', 'גומיות לשיער', 'סיכות לשיער', 'ערכת גילוח', 'ערכת ציפורניים', 'מראה קטנה'] },
+    { title: 'מסמכים וכסף', items: ['דרכון', 'רישיון נהיגה פלסטיק', 'רישיון נהיגה בינלאומי', 'מזומן יורו', 'מזומן שקלים למונית', 'כרטיס אשראי על שם אייל', 'אישורי טיסות, רכב ומלונות'] },
+    { title: 'אלקטרוניקה', items: ['מטען לפלאפון', 'מטען לשעון', 'מטען נייד', 'אוזניות', 'כבל טעינה לרכב', 'מתאם חשמל', 'מעמד לטלפון ברכב'] },
+    { title: 'משקפיים ואביזרים', items: ['משקפי שמש', 'משקפי ראייה ספייר', 'מטליות ניקוי משקפיים', 'מגבונים לניקוי משקפיים', 'פאוץ׳', 'תיק גב', 'תיק קטן ליום'] },
+    { title: 'דברים לדרך / כביסה / היגיינה', items: ['דפי מנטה', 'שקיות לבגדים מלוכלכים', 'ג׳ל כביסה', 'מגבונים לשירותים', 'קלינקס גדול', 'קלינקס קטן', 'בקבוק מים'] },
+    { title: 'פנאי', items: ['קינדל', 'ספר', 'תשבצים + סודוקו + עט'] },
+    { title: 'תרופות ועזרה ראשונה', items: ['גלולות + ספייר', 'רני', 'אדוויל', 'קלבטן', 'סטופאיט', 'ספריי אף', 'ויטמינים', 'כדורי אלרגיה', 'כל התרופות החדשות של אייל', 'פלסטרים', 'אלתוש', 'פניסטיל'] },
   ],
 }
 
@@ -2674,13 +2688,53 @@ function renderTasksPage(trip) {
   </section>`
 }
 
+const PACKING_STORAGE_KEY = 'italy-trip-packing-v1'
+function loadPackingChecks() {
+  try {
+    const saved = JSON.parse(window.localStorage.getItem(PACKING_STORAGE_KEY) || '{}')
+    return saved && typeof saved === 'object' && !Array.isArray(saved) ? saved : {}
+  } catch { return {} }
+}
+const packingChecks = loadPackingChecks()
+
 function renderPackingPage(trip) {
+  const groups = trip.packing || []
+  const allItems = groups.flatMap((group) => group.items)
+  const doneCount = allItems.filter((item) => packingChecks[item]).length
   return `<section class="page packing-page">
-    ${renderPageHeader('רשימת ציוד', 'מה אורזים', 'רשימה בסיסית להתחלה — נדייק אותה בהמשך לפי מזג האוויר והלינות.')}
+    ${renderPageHeader('רשימת ציוד', 'מה אורזים', 'מסמנים מה שכבר ארוז. הסימונים נשמרים במכשיר הזה.')}
+    <p class="packing-progress" aria-live="polite">סה״כ נארזו <strong data-packing-total>${doneCount}/${allItems.length}</strong> פריטים</p>
     <div class="packing-grid">
-      ${(trip.packing || []).map((group) => `<section class="packing-card"><h3>${esc(group.title)}</h3>${group.items.map((item) => `<label class="checklist-item"><input type="checkbox"><span class="custom-check"></span><span>${esc(item)}</span></label>`).join('')}</section>`).join('')}
+      ${groups.map((group, index) => {
+        const done = group.items.filter((item) => packingChecks[item]).length
+        return `<details class="packing-card ${done === group.items.length ? 'is-complete' : ''}" data-packing-group="${index}">
+          <summary class="packing-summary"><span class="packing-summary-title">${esc(group.title)}</span><span class="packing-count" data-packing-count>${done}/${group.items.length}</span><span class="packing-chevron" aria-hidden="true"></span></summary>
+          <div class="packing-items">${group.items.map((item) => `<label class="checklist-item ${packingChecks[item] ? 'is-done' : ''}"><input type="checkbox" data-packing-item="${esc(item)}" ${packingChecks[item] ? 'checked' : ''}><span class="custom-check"></span><span>${esc(item)}</span></label>`).join('')}</div>
+        </details>`
+      }).join('')}
     </div>
   </section>`
+}
+
+function initPackingChecklist() {
+  const page = document.querySelector('.packing-page')
+  if (!page) return
+  page.addEventListener('change', (event) => {
+    const input = event.target.closest('input[data-packing-item]')
+    if (!input) return
+    const item = input.dataset.packingItem
+    if (input.checked) packingChecks[item] = true
+    else delete packingChecks[item]
+    try { window.localStorage.setItem(PACKING_STORAGE_KEY, JSON.stringify(packingChecks)) } catch {}
+    input.closest('.checklist-item').classList.toggle('is-done', input.checked)
+    const group = input.closest('[data-packing-group]')
+    const done = group.querySelectorAll('input[data-packing-item]:checked').length
+    const total = group.querySelectorAll('input[data-packing-item]').length
+    group.querySelector('[data-packing-count]').textContent = `${done}/${total}`
+    group.classList.toggle('is-complete', done === total)
+    const all = page.querySelectorAll('input[data-packing-item]')
+    page.querySelector('[data-packing-total]').textContent = `${page.querySelectorAll('input[data-packing-item]:checked').length}/${all.length}`
+  })
 }
 
 function buildSearchIndex(trip) {
@@ -3323,6 +3377,7 @@ function renderApp() {
   initMapFallbacks(trip)
   initGlobalSearch(trip)
   initMobileUtilityMenu()
+  initPackingChecklist()
   initFlightCountdown()
   initWeatherRefresh()
   enhanceMaps(trip)

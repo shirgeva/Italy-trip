@@ -44,7 +44,8 @@ for token in [
     assert token in weather_block, f'Wrong or missing trip weather location: {token}'
 
 # Session-memory cache only: no stale forecast persistence.
-assert "localStorage" not in html
+weather_code = html.split("const weatherState", 1)[1].split("const PACKING_STORAGE_KEY", 1)[0]
+assert "localStorage" not in weather_code
 assert "WEATHER_REFRESH_MS = 30 * 60 * 1000" in html
 assert html.count("weatherRefreshTimer = window.setInterval") == 1
 assert "if (!weatherRefreshTimer)" in html
