@@ -322,7 +322,7 @@ button, input { font: inherit; }
 details { border-top: 1px solid var(--border); }
 details summary { list-style: none; cursor: pointer; display: flex; align-items: center; justify-content: space-between; gap: 14px; padding: 10px 16px; color: var(--green); font-size: 16px; font-weight: 600; }
 details summary::-webkit-details-marker { display: none; }
-details[open] summary > span { transform: rotate(45deg); }
+details:not(.packing-card)[open] summary > span:last-child { transform: rotate(45deg); }
 .stop-details { padding: 0 16px 14px; }
 .detail-row { display: grid; grid-template-columns: 80px 1fr; gap: 10px; padding: 7px 0; border-top: 1px solid #E7E1D8; font-size: 16px; }
 .detail-row > span { color: var(--muted); }
