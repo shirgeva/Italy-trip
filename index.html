@@ -2660,9 +2660,34 @@ function rentalCarCard(car) {
   return `<article class="hub-card rental-card"><div class="hub-card-head"><div><span class="eyebrow">SIXT</span><h3>רכב שכור</h3><p>${ltr(car.company)}</p></div><span class="status-badge status-booked">הוזמן</span></div><div class="info-grid">${fields.map(([label, value]) => `<div><small>${esc(label)}</small><strong>${value ? ltr(value) : infoPlaceholder()}</strong></div>`).join('')}</div><div class="car-details-grid"><div><h4>כלול בהזמנה</h4><ul>${car.includes.map((item) => `<li>${esc(item)}</li>`).join('')}</ul></div><div><h4>מה להביא לאיסוף</h4><ul>${car.requiredDocuments.map((item) => `<li>${esc(item)}</li>`).join('')}</ul></div></div><details class="info-accordion rental-reminders"><summary><div><strong>דגשים חשובים מהשובר</strong><small>לפני איסוף והחזרת הרכב</small></div><span>＋</span></summary><div class="accordion-body"><ul>${car.reminders.map((item) => `<li>${esc(item)}</li>`).join('')}</ul></div></details></article>`
 }
 
+const TASKS_STORAGE_KEY = 'italy-trip-tasks-v1'
+function loadTaskChecks() {
+  try {
+    const saved = JSON.parse(window.localStorage.getItem(TASKS_STORAGE_KEY) || '{}')
+    return saved && typeof saved === 'object' && !Array.isArray(saved) ? saved : {}
+  } catch { return {} }
+}
+const taskChecks = loadTaskChecks()
+
+function taskDone(item) {
+  return Object.prototype.hasOwnProperty.call(taskChecks, item.id) ? Boolean(taskChecks[item.id]) : Boolean(item.done)
+}
+
+function renderTaskChecklist(trip, extraClass = '') {
+  const doneCount = trip.checklist.filter(taskDone).length
+  return {
+    doneCount,
+    html: `<div class="checklist-card ${extraClass}" data-task-checklist>${trip.checklist.map((item) => {
+      const done = taskDone(item)
+      return `<label class="checklist-item ${done ? 'is-done' : ''}"><input type="checkbox" data-task-id="${esc(item.id)}" ${done ? 'checked' : ''}><span class="custom-check"></span><span>${esc(item.label)}</span></label>`
+    }).join('')}</div>`
+  }
+}
+
 function renderTravelHubPage(trip) {
   const counts = bookingCounts(trip.reservations)
   const countFor = (key) => counts[key] ?? 0
+  const taskChecklist = renderTaskChecklist(trip)
   return `<section class="page hub-page">
     ${renderPageHeader('מרכז הטיול', 'כל מה שצריך לטיול', 'הזמנות, רכב, טיסות ודברים שצריך לסגור לפני שיוצאים.')}
 
@@ -2674,17 +2699,17 @@ function renderTravelHubPage(trip) {
 
     <section class="hub-section"><div class="section-heading"><div><span class="eyebrow">הזמנות ותכנון</span><h2>מה סגור ומה עוד חסר</h2></div></div><div class="status-summary"><div><strong>${countFor('booked')}</strong><span>הוזמן</span></div><div><strong>${countFor('to-book')}</strong><span>להזמין</span></div><div><strong>${countFor('planning')}</strong><span>בתכנון</span></div><div><strong>${countFor('considering')}</strong><span>בהתלבטות</span></div></div><div class="reservation-list">${trip.reservations.map((item) => `<div class="reservation-row"><div class="reservation-name"><span class="category-chip">${esc(categoryLabel(item.category))}</span><div><strong>${item.category === 'Flight' ? esc(item.name) : ltr(item.name)}</strong>${item.date ? `<small>${esc(formatDate(item.date))}</small>` : ''}</div></div><span class="status-badge status-${esc(item.status)}">${esc(statusLabel(item.status))}</span></div>`).join('')}</div></section>
 
-    <section class="hub-section"><div class="section-heading"><div><span class="eyebrow">לפני הנסיעה</span><h2>לפני שטסים</h2></div><span class="section-note">${trip.checklist.filter((item) => item.done).length}/${trip.checklist.length} הושלמו</span></div><div class="checklist-card">${trip.checklist.map((item) => `<label class="checklist-item ${item.done ? 'is-done' : ''}"><input type="checkbox" ${item.done ? 'checked' : ''}><span class="custom-check"></span><span>${esc(item.label)}</span></label>`).join('')}</div></section>
+    <section class="hub-section"><div class="section-heading"><div><span class="eyebrow">לפני הנסיעה</span><h2>לפני שטסים</h2></div><span class="section-note" data-task-progress>${taskChecklist.doneCount}/${trip.checklist.length} הושלמו</span></div>${taskChecklist.html}</section>
   </section>`
 }
 
 
 function renderTasksPage(trip) {
-  const doneCount = trip.checklist.filter((item) => item.done).length
+  const taskChecklist = renderTaskChecklist(trip, 'tasks-checklist')
   return `<section class="page tasks-page">
     ${renderPageHeader('לפני הנסיעה', 'משימות', 'מה כבר סגור ומה עוד נשאר לעשות לפני הטיסה.')}
-    <div class="section-heading compact"><div><span class="eyebrow">התקדמות</span><h2>${doneCount}/${trip.checklist.length} הושלמו</h2></div></div>
-    <div class="checklist-card tasks-checklist">${trip.checklist.map((item) => `<label class="checklist-item ${item.done ? 'is-done' : ''}"><input type="checkbox" ${item.done ? 'checked' : ''}><span class="custom-check"></span><span>${esc(item.label)}</span></label>`).join('')}</div>
+    <div class="section-heading compact"><div><span class="eyebrow">התקדמות</span><h2 data-task-progress>${taskChecklist.doneCount}/${trip.checklist.length} הושלמו</h2></div></div>
+    ${taskChecklist.html}
   </section>`
 }
 
@@ -2714,6 +2739,22 @@ function renderPackingPage(trip) {
       }).join('')}
     </div>
   </section>`
+}
+
+function initTaskChecklist(trip) {
+  const checklist = document.querySelector('[data-task-checklist]')
+  if (!checklist) return
+  checklist.addEventListener('change', (event) => {
+    const input = event.target.closest('input[data-task-id]')
+    if (!input) return
+    taskChecks[input.dataset.taskId] = input.checked
+    try { window.localStorage.setItem(TASKS_STORAGE_KEY, JSON.stringify(taskChecks)) } catch {}
+    input.closest('.checklist-item').classList.toggle('is-done', input.checked)
+    const done = checklist.querySelectorAll('input[data-task-id]:checked').length
+    document.querySelectorAll('[data-task-progress]').forEach((node) => {
+      node.textContent = `${done}/${trip.checklist.length} הושלמו`
+    })
+  })
 }
 
 function initPackingChecklist() {
@@ -3377,6 +3418,7 @@ function renderApp() {
   initMapFallbacks(trip)
   initGlobalSearch(trip)
   initMobileUtilityMenu()
+  initTaskChecklist(trip)
   initPackingChecklist()
   initFlightCountdown()
   initWeatherRefresh()
