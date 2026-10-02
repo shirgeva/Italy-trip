@@ -1282,8 +1282,26 @@ const trip = {
       drivingTime: 'כ־4:40–5:10 שעות נהיגה נטו · תלוי בתנועה',
       walking: 'Bolzano + Soprabolzano + Val di Funes · הליכות קצרות וקלות',
       highlights: ['Ritten Cable Car · Bolzano ↔ Soprabolzano', 'Bolzano historic center + Loacker Piazza Walther', 'Val di Funes / Santa Maddalena', 'ecHo Apartments & SPA · Bressanone'],
+      areaOptionsTitle: 'אפשרויות נוספות באזור',
+      areaOptionsEyebrow: 'אופציונלי בלבד',
+      areaOptions: [
+        {
+          id: 'plose-mountaincarts-option',
+          name: 'Plose Mountaincarts',
+          category: 'Mountaincart · אופציונלי – להחליט במקום',
+          description: 'ירידה חווייתית של כ־9 ק״מ בעגלת הרים תלת־גלגלית ללא מנוע, מהתחנה העליונה של רכבל Plose עד התחנה התחתונה, כמעט 1,000 מ׳ נמוך יותר. עולים קודם ברכבל, מקבלים Mountaincart וקסדה למעלה ויורדים בשליטה עצמית עם בלמים.',
+          details: {
+            openingHours: '4.10.2026 · 10:00–16:45 · זה היום האחרון של עונת ה־Mountaincarts ב־2026',
+            price: 'אחרי 13:00: €23 לאדם ל־Mountaincart · בנוסף עלייה חד־כיוונית ברכבל Plose: €24 אונליין / self-service או €27 בקופה · סה״כ כ־€47–50 לאדם לפני הנחות · קסדה כלולה',
+            address: 'Seilbahnstraße 17, 39042 St. Andrä/Brixen (BZ), Italy',
+            notes: 'רק אם מסתדר ספונטנית בזמן — לא משנים מראש את המסלול ולא מקצרים בכוח את Bolzano או Val di Funes. להקצות בערך 60–90 דקות לכל החוויה כולל העלייה ברכבל, check-in / time slot והירידה. אי אפשר להזמין את ה־Mountaincart מראש אונליין: קונים כרטיס רכבל, עולים לתחנה העליונה, ניגשים ל־Infoshop ושם מזמינים time slot וקונים את כרטיס ה־Mountaincart. לקראת סוף היום אין הבטחה שיישארו slots, לכן אם נרצה לנסות עדיף להגיע לחניה בערך עד 15:15–15:30. אם מאוחר, אין מקום או שמזג האוויר לא מתאים — פשוט ממשיכים למלון. בגשם, שלג או סופת רעמים הפעילות עלולה להיסגר. נעליים סגורות / מתאימות חובה; סנדלים אינם מותרים.',
+            website: 'https://www.plose.org/en/summer-plose/adrenaline-plose/mountaincarts.html',
+          },
+        },
+      ],
       dayNotes: [
         'אם הנסיעה מ־Bellano מתעכבת, מקצרים קודם את השיטוט במרכז Bolzano — לא את Val di Funes ולא דוחים את ההגעה למלון שלא לצורך.',
+        'Plose Mountaincarts נשאר אופציה ספונטנית בלבד בסוף היום: רק אם אנחנו באזור מוקדם מספיק, יש slots ומזג האוויר מתאים.',
       ],
       stops: [
         place({ id: 'ca-del-lasco-checkout-day3', type: 'hotel', name: 'Ca’ del Lasco – Tulipano · צ׳ק־אאוט ויציאה', time: '08:00', status: 'booked', coordinates: coords.caDelLasco, details: { address: 'Via per Taceno 19, 23822 Bellano (LC), Italy', notes: 'יוצאים ישירות לכיוון Bolzano. אין עצירת יקב בדרך ביום הזה.' } }),
