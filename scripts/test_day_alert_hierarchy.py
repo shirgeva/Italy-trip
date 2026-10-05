@@ -13,16 +13,16 @@ for old in [
 ]:
     assert old not in html, f'Old stacked day-alert UI returned: {old}'
 
-# Critical alerts are intentionally rare: only Alpe di Siusi and Tre Cime.
+# Critical alerts are intentionally rare: only Day 5 logistics and Tre Cime.
 assert html.count("criticalAlert: '") == 2
 for token in [
-    "Alpe di Siusi: צריך לעבור את מגבלת הכניסה לרכב פרטי ל־Compatsch לפני 09:00.",
+    "Alpe di Siusi: לעבור את מחסום San Valentino עד 09:00 ולהגיע ל־P2 עד 09:30. Loacker: סדנה מוזמנת ב־16:15 — יעד הגעה 15:55–16:00.",
     "Tre Cime: החניה הוזמנה ל־7.10. פתיחת הכביש באוקטובר עדיין תלויה במזג האוויר — לבדוק תנאים לפני היציאה.",
 ]:
     assert token in html, f'Missing critical alert: {token}'
 
 # General notes are collapsed native details and live after the timeline.
-assert html.count("dayNotes: [") == 4
+assert html.count("dayNotes: [") == 5
 assert '<details class="day-notes">' in html
 assert '<details class="day-notes" open' not in html
 assert "דגשים ליום" in html
@@ -39,6 +39,7 @@ assert weather_pos < critical_pos < timeline_pos < notes_pos, "Day hierarchy mus
 for token in [
     "לוחות המעבורות ל־3.10 עדיין דורשים בדיקה סמוך למועד",
     "אם הנסיעה מ־Bellano מתעכבת, מקצרים קודם את השיטוט במרכז Bolzano",
+    "אחרי Passo Gardena ממשיכים קודם ל־Post Residence",
     "אחרי Passo Sella בוחרים לכל היותר אופציה אחת",
     "Buffaure, Ciampac ו־Ciampedie כבר מחוץ לעונת הפעילות",
 ]:
@@ -60,7 +61,8 @@ for old in [
 
 # Detailed operational information remains in the relevant stop cards.
 for token in [
-    "רכב פרטי רשאי לעלות ל־Compatsch רק לפני 09:00",
+    "מחסום San Valentino עד 09:00 · P2 עד 09:30",
+    "P2 Compatsch הוזמן ל־06.10.2026",
     "פתיחת הכביש באוקטובר תלויה במזג האוויר",
     "חניה הוזמנה מראש ל־7.10.2026",
     "לוחית הרישוי עדיין לא הוזנה כי מדובר ברכב שכור",
