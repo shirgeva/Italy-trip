@@ -8,19 +8,14 @@ on:
 
 permissions:
   contents: write
-  pages: write
-  id-token: write
 
 concurrency:
-  group: "pages"
+  group: "day5-loacker-update"
   cancel-in-progress: false
 
 jobs:
-  update-and-deploy:
+  update:
     runs-on: ubuntu-latest
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -49,31 +44,3 @@ jobs:
           git add index.html
           git commit -m "Add booked Loacker workshop to Day 5"
           git push origin HEAD:main
-
-      - name: Configure Google Maps key for deploy
-        env:
-          GOOGLE_MAPS_API_KEY: ${{ secrets.GOOGLE_MAPS_API_KEY }}
-        shell: bash
-        run: |
-          python3 - <<'PY'
-          import os
-          from pathlib import Path
-          path = Path('index.html')
-          text = path.read_text()
-          key = os.environ.get('GOOGLE_MAPS_API_KEY', '').strip()
-          text = text.replace('__GOOGLE_MAPS_API_KEY__', key)
-          path.write_text(text)
-          print('Google Maps key configured for deploy.' if key else 'No Google Maps key configured; Leaflet fallback remains active.')
-          PY
-
-      - name: Setup Pages
-        uses: actions/configure-pages@v5
-
-      - name: Upload artifact
-        uses: actions/upload-pages-artifact@v3
-        with:
-          path: '.'
-
-      - name: Deploy to GitHub Pages
-        id: deployment
-        uses: actions/deploy-pages@v5
